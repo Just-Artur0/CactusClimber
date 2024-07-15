@@ -1532,7 +1532,7 @@ def start():
                     show_textbox = True
                     show_start = False
         title_text = pygame.font.SysFont('comicsans', 90).render("Cactus Climber", 1, (64, 255, 25)) 
-        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.5", 1, (64, 255, 25))
+        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.6", 1, (64, 255, 25))
         window.fill((204, 102, 25))
         window.blit(Play.image, (Play.x, Play.y))
         window.blit(Options.image, (Options.x, Options.y))
@@ -1728,7 +1728,7 @@ def mainmenu():
         total_birds_dodged_easy_text = pygame.font.SysFont('comicsans', 20).render(f"Total Birds Dodged: {data_easy['birds_dodged']}", 1, (255, 255, 255))
 
         title_text = pygame.font.SysFont('comicsans', 140).render("Cactus Climber", 1, (64, 255, 25)) 
-        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.5", 1, (64, 255, 25))
+        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.6", 1, (64, 255, 25))
         money_text = pygame.font.SysFont('comicsans', 80).render(f"{data_shop['money']} : ", 1, (64, 255, 25))
 
         window.fill((204, 102, 25))
