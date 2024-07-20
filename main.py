@@ -1,11 +1,12 @@
 print("The Game is launching.", end="\n")
-
+#importing the modules
 import moviepy.editor
 import pygame
 import random
 import moviepy
 import json
 import os
+#initializing
 pygame.font.init()
 pygame.mixer.init()
 pygame.joystick.init()
@@ -19,6 +20,7 @@ pygame.display.set_caption("Cactus Climber")
 #Joystick
 joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
+#loading images
 bottom_cactus = pygame.image.load(os.path.join('Images', 'cactus', 'bottom_cactus.png')).convert()
 bottom_cactus = pygame.transform.scale(bottom_cactus, (100, 1000))
 
@@ -27,11 +29,13 @@ mid_cactus = pygame.transform.scale(mid_cactus, (100, 1000))
 
 top_cactus = pygame.image.load(os.path.join('Images', 'cactus', 'top_cactus.png')).convert()
 top_cactus = pygame.transform.scale(top_cactus, (100, 1000))
-
+#setting the icon to an image
 pygame.display.set_icon(mid_cactus)
 
+#loading images
 bg = pygame.image.load(os.path.join('Images', 'bg.png')).convert_alpha()
 
+#variables + booleans
 diff = 0
 show_textbox = False
 show_start = True
@@ -45,6 +49,7 @@ play_denied6 = True
 play_denied7 = True
 play_denied8 = True
 
+#loading images
 easy_image = pygame.image.load(os.path.join('Images', 'difficulty', 'easy.png')).convert()
 normal_image = pygame.image.load(os.path.join('Images', 'difficulty', 'normal.png')).convert()
 hard_image = pygame.image.load(os.path.join('Images', 'difficulty', 'hard.png')).convert()
@@ -88,11 +93,13 @@ buy_image = pygame.image.load(os.path.join('Images', 'shop', 'buy.png')).convert
 
 credits_bg_image = pygame.image.load(os.path.join('Images', 'credits', 'credits_bg.png')).convert()
 
+#loading sounds and music
 maintheme = pygame.mixer.Sound(os.path.join('Music', 'maintheme.mp3'))
 dodgemusic = pygame.mixer.Sound(os.path.join('Music', 'dodge!.mp3'))
 firesound = pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'fire.mp3'))
 birdsound = pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'bird.mp3'))
 
+#data
 data_easy = {
     'birds_dodged': 0,
     'fireballs_dodged': 0,
@@ -146,7 +153,7 @@ data_options = {
     'show_normal': False,
     'show_hard': False
 }
-
+#loading data
 try:
     with open(os.path.join('data','save_data_easy.json')) as save_data_easy:
         data_easy = json.load(save_data_easy)
@@ -161,6 +168,7 @@ try:
 except:
     print("")
 
+#classes
 class player:
     def __init__(self, x, y, width, height):
         self.x = x
@@ -239,7 +247,7 @@ def win():
                 if io == -1: #left
                     endvideo()
                  
-
+        #text
         money_text = pygame.font.SysFont('comicsans', 80).render(f"{data_shop['money']} : ", 1, (64, 255, 25))
         main_text = pygame.font.SysFont('comicsans', 40).render("Press A or Left key to Go Back Down", 1, (0, 0, 255))
         win_text = pygame.font.SysFont('comicsans', 40).render("You Reached the Top!", 1, (0, 0, 255))
@@ -248,12 +256,14 @@ def win():
         window.blit(win1_text, (550, 50))
         window.blit(main_text, (360, 600))
 
+        #keyboard input
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             pygame.display.update()
             pygame.time.wait(3000)
             endvideo()
         
+        #displaying on screen
         window.blit(money_text, ((screen_width - money_text.get_width() - 225), 600))
 
         window.blit(Money.image, (Money.x, Money.y))
@@ -415,7 +425,6 @@ def shop():
         Unequip8.image = pygame.transform.scale(unequip_image, (100, 50))
         Unequip8.x = 950
 
-    
     run = True
     clockyy = pygame.time.Clock()
     while run:  
@@ -438,6 +447,7 @@ def shop():
             if event.type == pygame.JOYBUTTONDOWN:
                 if pygame.joystick.Joystick(0).get_button(1):
                         start()
+                #press triangle to show select box
                 if pygame.joystick.Joystick(0).get_button(3):
                         show_select_box = True
                 if pygame.joystick.Joystick(0).get_button(0):
@@ -729,6 +739,7 @@ def shop():
                             Unequip8.image = pygame.transform.scale(unequip_image, (0, 0))
                             Unequip8.x = 10000
                             last_move_time = current_time
+            #moving the select box
             if event.type == pygame.JOYAXISMOTION:
                 io = round(pygame.joystick.Joystick(0).get_axis(0))
                 io2 = round(pygame.joystick.Joystick(0).get_axis(1))
@@ -1531,6 +1542,7 @@ def start():
                 if reset_rect.collidepoint(mousex, mousey):
                     show_textbox = True
                     show_start = False
+        #text5
         title_text = pygame.font.SysFont('comicsans', 90).render("Cactus Climber", 1, (64, 255, 25)) 
         version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.6", 1, (64, 255, 25))
         window.fill((204, 102, 25))
@@ -1644,7 +1656,7 @@ def mainmenu():
                 normal_hide_stats_rect = pygame.Rect(Normal_Hide_Stats.x, Normal_Hide_Stats.y, Normal_Hide_Stats.width, Normal_Hide_Stats.height)
                 hard_hide_stats_rect = pygame.Rect(Hard_Hide_Stats.x, Hard_Hide_Stats.y, Hard_Hide_Stats.width, Hard_Hide_Stats.height)
                 back_rect = pygame.Rect(Back.x, Back.y, Back.width, Back.height)
-
+                
                 if easy_rect.collidepoint(mousex, mousey):
                     diff = 1
                     mainspot()
@@ -1712,6 +1724,7 @@ def mainmenu():
                 if back_rect.collidepoint(mousex, mousey):
                     start()
 
+        #text
         full_meter_normal_text = pygame.font.SysFont('comicsans', 20).render("(cactus is 117m)", 1, (255, 255, 255))
         total_fireballs_dodged_normal_text = pygame.font.SysFont('comicsans', 20).render(f"Total Fireballs Dodged: {data_normal['fireballs_dodged']}", 1, (255, 255, 255))
         highest_meter_normal_text = pygame.font.SysFont('comicsans', 20).render(f"Total Meters Climbed: {data_normal['meters_up']}", 1, (255, 255, 255))
@@ -2172,6 +2185,7 @@ def main_easy():
         dodge_text_red = pygame.font.SysFont('comicsans', 20).render("dodge!", 1, (255, 0, 0))
         dodge_text = pygame.font.SysFont('comicsans', 20).render("dodge!", 1, (255, 255, 255))
     
+        #show dogde text when fireball above player
         if fireball1.y >= 0 and fireball1.x == 585 and player1.x == 590 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
