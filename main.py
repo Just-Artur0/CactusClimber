@@ -2106,7 +2106,10 @@ def main_easy():
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
             with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
@@ -2116,7 +2119,10 @@ def main_easy():
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             birddeathvid()
             
         keys = pygame.key.get_pressed()
@@ -2190,7 +2196,10 @@ def main_easy():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
             pygame.display.update()
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
@@ -2204,7 +2213,10 @@ def main_easy():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
             pygame.display.update()
             window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
@@ -2226,7 +2238,10 @@ def main_easy():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
             with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
@@ -2237,7 +2252,10 @@ def main_easy():
             with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     json.dump(data_shop, save_data_shop)
             if data_options['play_sfx'] == True:
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             win()
 
         high_score_text = pygame.font.SysFont('comicsans', 40).render("High Scores", 1, (255, 255, 255))
@@ -2417,7 +2435,10 @@ def main_normal():
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
             with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
@@ -2427,7 +2448,10 @@ def main_normal():
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             birddeathvid()
             
         keys = pygame.key.get_pressed()
@@ -2500,7 +2524,10 @@ def main_normal():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
             pygame.display.update()
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
@@ -2514,7 +2541,10 @@ def main_normal():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
             pygame.display.update()
             window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
@@ -2536,7 +2566,10 @@ def main_normal():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
             with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
@@ -2547,7 +2580,10 @@ def main_normal():
             with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     json.dump(data_shop, save_data_shop)
             if data_options['play_sfx'] == True:
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             win()
 
         high_score_text = pygame.font.SysFont('comicsans', 40).render("High Scores", 1, (255, 255, 255))
@@ -2730,7 +2766,10 @@ def main_hard():
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
             with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
@@ -2740,7 +2779,10 @@ def main_hard():
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             birddeathvid()
             
         keys = pygame.key.get_pressed()
@@ -2813,7 +2855,10 @@ def main_hard():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
             pygame.display.update()
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
@@ -2827,7 +2872,10 @@ def main_hard():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
             pygame.display.update()
             window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
@@ -2849,7 +2897,10 @@ def main_hard():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
             with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
@@ -2860,7 +2911,10 @@ def main_hard():
             with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     json.dump(data_shop, save_data_shop)
             if data_options['play_sfx'] == True:
-                pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                try:
+                    pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
+                except:
+                    print("")
             win()
 
         high_score_text = pygame.font.SysFont('comicsans', 40).render("High Scores", 1, (255, 255, 255))
