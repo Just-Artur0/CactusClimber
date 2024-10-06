@@ -1,11 +1,9 @@
-print("The Game is launching.", end="\n")
-#importing the modules
-import moviepy.editor
+print("The Game is loading.", end="\n")
+from moviepy.editor import VideoFileClip
 import pygame
-import random
-import moviepy
-import json
-import os
+from random import choice, randint
+from json import dump, load
+from os import path
 #initializing
 pygame.font.init()
 pygame.mixer.init()
@@ -20,20 +18,133 @@ pygame.display.set_caption("Cactus Climber")
 #Joystick
 joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
-#loading images
-bottom_cactus = pygame.image.load(os.path.join('Images', 'cactus', 'bottom_cactus.png')).convert()
+loading_font = pygame.font.SysFont('Arial', 50)
+loading_text = loading_font.render('Loading...', True, (255, 255, 255))
+
+def display_loading_screen(progress, total):
+    window.fill((0, 0, 0))
+    window.blit(loading_text, (screen_width // 2 - loading_text.get_width() // 2, screen_height // 2 - 50))
+
+    # Progress Bar
+    bar_width = 400
+    bar_height = 30
+    loading_bar_x = screen_width // 2 - bar_width // 2
+    loading_bar_y = screen_height // 2 + 50
+    progress_width = int((progress / total) * bar_width)
+
+    pygame.draw.rect(window, (255, 255, 255), (loading_bar_x, loading_bar_y, bar_width, bar_height), 2)  # Border
+    pygame.draw.rect(window, (0, 255, 0), (loading_bar_x, loading_bar_y, progress_width, bar_height))  # Fill
+
+    pygame.display.update()
+
+def load_assets():
+    assets = [
+        # Images
+        'cactus/bottom_cactus.png', 'cactus/mid_cactus.png', 'cactus/top_cactus.png',
+        'difficulty/easy.png', 'difficulty/normal.png', 'difficulty/hard.png',
+        'player/begin_player.png', 'ui/back.png', 'ui/play.png', 'shop/red_cap.png',
+        'credits/credits_bg.png', 'difficulty/hide_stats.png', 'difficulty/show_stats.png',
+        'obstacles/bird.png', 'obstacles/fireball.png', 'player/flippedplayer.png',
+        'player/player.png', 'shop/buy.png', 'shop/cowboy_hat.png', 'shop/equip.png',
+        'shop/king_hat.png', 'shop/mexican_hat.png', 'shop/money.png', 'shop/party_hat.png',
+        'shop/thinking_hat.png', 'shop/top_hat.png', 'shop/unequip.png', 'shop/witch_hat.png',
+        'ui/checked_off.png', 'ui/checked.png', 'ui/credits.png', 'ui/music.png', 'ui/no.png',
+        'ui/options.png', 'ui/quit.png', 'ui/reset.png', 'ui/select_box.png', 'ui/sfx.png',
+        'ui/shop.png', 'ui/TextBox.png', 'ui/yes.png', 'bg.png', 'ui/controller_vibration.png',
+        # Sounds
+        'Music/maintheme.mp3', 'Music/dodge!.mp3', 'Music/Sounds/fire.mp3', 'Music/Sounds/bird.mp3',
+        'Music/Sounds/buy.mp3', 'Music/Sounds/denied.mp3', 'Music/Sounds/equipped.mp3'
+    ]
+    
+    loaded_assets = []
+    total_assets = len(assets)
+    
+    for index, asset in enumerate(assets):
+        # Simulate asset loading (Replace this with actual loading code)
+        if asset.endswith('.png'):
+            # Load an image
+            image = pygame.image.load(path.join('Images', asset)).convert_alpha()
+            loaded_assets.append(image)
+        elif asset.endswith('.mp3'):
+            # Load a sound
+            sound = pygame.mixer.Sound(path.join(asset))
+            loaded_assets.append(sound)
+
+        # Update loading screen progress
+        display_loading_screen(index + 1, total_assets)
+    
+    return loaded_assets
+
+# --- Game startup ---
+display_loading_screen(0, 1)  # Show initial loading screen
+
+# Load all assets while updating the loading screen
+loaded_assets = load_assets()
+print("The Game Finished Loading!!")
+
+bottom_cactus = pygame.image.load(path.join('Images', 'cactus', 'bottom_cactus.png')).convert()
 bottom_cactus = pygame.transform.scale(bottom_cactus, (100, 1000))
 
-mid_cactus = pygame.image.load(os.path.join('Images', 'cactus', 'mid_cactus.png')).convert()
+mid_cactus = pygame.image.load(path.join('Images', 'cactus', 'mid_cactus.png')).convert()
 mid_cactus = pygame.transform.scale(mid_cactus, (100, 1000))
 
-top_cactus = pygame.image.load(os.path.join('Images', 'cactus', 'top_cactus.png')).convert()
-top_cactus = pygame.transform.scale(top_cactus, (100, 1000))
 #setting the icon to an image
 pygame.display.set_icon(mid_cactus)
 
+top_cactus = pygame.image.load(path.join('Images', 'cactus', 'top_cactus.png')).convert()
+top_cactus = pygame.transform.scale(top_cactus, (100, 1000))
+
+easy_image = pygame.image.load(path.join('Images', 'difficulty', 'easy.png')).convert()
+normal_image = pygame.image.load(path.join('Images', 'difficulty', 'normal.png')).convert()
+hard_image = pygame.image.load(path.join('Images', 'difficulty', 'hard.png')).convert()
+show_stats_image = pygame.image.load(path.join('Images', 'difficulty', 'show_stats.png')).convert()
+hide_stats_image = pygame.image.load(path.join('Images', 'difficulty', 'hide_stats.png')).convert()
+
+begin_player = pygame.image.load(path.join('Images', 'player', 'begin_player.png')).convert_alpha()
+begin_player = pygame.transform.scale(begin_player, (100, 200))
+
+back_image = pygame.image.load(path.join('Images', 'ui', 'back.png')).convert()
+checked_off_image = pygame.image.load(path.join('Images', 'ui', 'checked_off.png')).convert()
+checked_image = pygame.image.load(path.join('Images', 'ui', 'checked.png')).convert()
+credits_image = pygame.image.load(path.join('Images', 'ui', 'credits.png')).convert()
+music_image = pygame.image.load(path.join('Images', 'ui', 'music.png')).convert()
+options_image = pygame.image.load(path.join('Images', 'ui', 'options.png')).convert()
+play_image = pygame.image.load(path.join('Images', 'ui', 'play.png')).convert()
+quit_image = pygame.image.load(path.join('Images', 'ui', 'quit.png')).convert()
+sfx_image = pygame.image.load(path.join('Images', 'ui', 'sfx.png')).convert()
+controller_vibration_image = pygame.image.load(path.join('Images', 'ui', 'controller_vibration.png')).convert()
+shop_image = pygame.image.load(path.join('Images', 'ui', 'shop.png')).convert()
+reset_image = pygame.image.load(path.join('Images', 'ui', 'reset.png')).convert()
+
+select_box_image = pygame.image.load(path.join('Images', 'ui', 'select_box.png')).convert_alpha()
+
+textbox_image = pygame.image.load(path.join('Images', 'ui', 'TextBox.png')).convert()
+yes_image = pygame.image.load(path.join('Images', 'ui', 'yes.png')).convert()
+no_image = pygame.image.load(path.join('Images', 'ui', 'no.png')).convert()
+
+red_cap_image = pygame.image.load(path.join('Images', 'shop', 'red_cap.png')).convert_alpha()
+thinking_hat_image = pygame.image.load(path.join('Images', 'shop', 'thinking_hat.png')).convert_alpha()
+top_hat_image = pygame.image.load(path.join('Images', 'shop', 'top_hat.png')).convert_alpha()
+cowboy_hat_image = pygame.image.load(path.join('Images', 'shop', 'cowboy_hat.png')).convert_alpha()
+king_hat_image = pygame.image.load(path.join('Images', 'shop', 'king_hat.png')).convert_alpha()
+mexican_hat_image = pygame.image.load(path.join('Images', 'shop', 'mexican_hat.png')).convert_alpha()
+witch_hat_image = pygame.image.load(path.join('Images', 'shop', 'witch_hat.png')).convert_alpha()
+party_hat_image = pygame.image.load(path.join('Images', 'shop', 'party_hat.png')).convert_alpha()
+
+money_image = pygame.image.load(path.join('Images', 'shop', 'money.png')).convert()
+equip_image = pygame.image.load(path.join('Images', 'shop', 'equip.png')).convert()
+unequip_image = pygame.image.load(path.join('Images', 'shop', 'unequip.png')).convert()
+buy_image = pygame.image.load(path.join('Images', 'shop', 'buy.png')).convert()
+credits_bg_image = pygame.image.load(path.join('Images', 'credits', 'credits_bg.png')).convert()
+
+#loading sounds and music
+maintheme = pygame.mixer.Sound(path.join('Music', 'maintheme.mp3'))
+dodgemusic = pygame.mixer.Sound(path.join('Music', 'dodge!.mp3'))
+firesound = pygame.mixer.Sound(path.join('Music', 'Sounds', 'fire.mp3'))
+birdsound = pygame.mixer.Sound(path.join('Music', 'Sounds', 'bird.mp3')) 
+
 #loading images
-bg = pygame.image.load(os.path.join('Images', 'bg.png')).convert_alpha()
+bg = pygame.image.load(path.join('Images', 'bg.png')).convert_alpha()
 
 #variables + booleans
 diff = 0
@@ -48,56 +159,6 @@ play_denied5 = True
 play_denied6 = True
 play_denied7 = True
 play_denied8 = True
-
-#loading images
-easy_image = pygame.image.load(os.path.join('Images', 'difficulty', 'easy.png')).convert()
-normal_image = pygame.image.load(os.path.join('Images', 'difficulty', 'normal.png')).convert()
-hard_image = pygame.image.load(os.path.join('Images', 'difficulty', 'hard.png')).convert()
-show_stats_image = pygame.image.load(os.path.join('Images', 'difficulty', 'show_stats.png')).convert()
-hide_stats_image = pygame.image.load(os.path.join('Images', 'difficulty', 'hide_stats.png')).convert()
-
-begin_player = pygame.image.load(os.path.join('Images', 'player', 'begin_player.png')).convert_alpha()
-begin_player = pygame.transform.scale(begin_player, (100, 200))
-
-back_image = pygame.image.load(os.path.join('Images', 'ui', 'back.png')).convert()
-checked_off_image = pygame.image.load(os.path.join('Images', 'ui', 'checked_off.png')).convert()
-checked_image = pygame.image.load(os.path.join('Images', 'ui', 'checked.png')).convert()
-credits_image = pygame.image.load(os.path.join('Images', 'ui', 'credits.png')).convert()
-music_image = pygame.image.load(os.path.join('Images', 'ui', 'music.png')).convert()
-options_image = pygame.image.load(os.path.join('Images', 'ui', 'options.png')).convert()
-play_image = pygame.image.load(os.path.join('Images', 'ui', 'play.png')).convert()
-quit_image = pygame.image.load(os.path.join('Images', 'ui', 'quit.png')).convert()
-sfx_image = pygame.image.load(os.path.join('Images', 'ui', 'sfx.png')).convert()
-shop_image = pygame.image.load(os.path.join('Images', 'ui', 'shop.png')).convert()
-reset_image = pygame.image.load(os.path.join('Images', 'ui', 'reset.png')).convert()
-
-select_box_image = pygame.image.load(os.path.join('Images', 'ui', 'select_box.png')).convert_alpha()
-
-textbox_image = pygame.image.load(os.path.join('Images', 'ui', 'TextBox.png')).convert()
-yes_image = pygame.image.load(os.path.join('Images', 'ui', 'yes.png')).convert()
-no_image = pygame.image.load(os.path.join('Images', 'ui', 'no.png')).convert()
-
-red_cap_image = pygame.image.load(os.path.join('Images', 'shop', 'red_cap.png')).convert_alpha()
-thinking_hat_image = pygame.image.load(os.path.join('Images', 'shop', 'thinking_hat.png')).convert_alpha()
-top_hat_image = pygame.image.load(os.path.join('Images', 'shop', 'top_hat.png')).convert_alpha()
-cowboy_hat_image = pygame.image.load(os.path.join('Images', 'shop', 'cowboy_hat.png')).convert_alpha()
-king_hat_image = pygame.image.load(os.path.join('Images', 'shop', 'king_hat.png')).convert_alpha()
-mexican_hat_image = pygame.image.load(os.path.join('Images', 'shop', 'mexican_hat.png')).convert_alpha()
-witch_hat_image = pygame.image.load(os.path.join('Images', 'shop', 'witch_hat.png')).convert_alpha()
-party_hat_image = pygame.image.load(os.path.join('Images', 'shop', 'party_hat.png')).convert_alpha()
-
-money_image = pygame.image.load(os.path.join('Images', 'shop', 'money.png')).convert()
-equip_image = pygame.image.load(os.path.join('Images', 'shop', 'equip.png')).convert()
-unequip_image = pygame.image.load(os.path.join('Images', 'shop', 'unequip.png')).convert()
-buy_image = pygame.image.load(os.path.join('Images', 'shop', 'buy.png')).convert()
-
-credits_bg_image = pygame.image.load(os.path.join('Images', 'credits', 'credits_bg.png')).convert()
-
-#loading sounds and music
-maintheme = pygame.mixer.Sound(os.path.join('Music', 'maintheme.mp3'))
-dodgemusic = pygame.mixer.Sound(os.path.join('Music', 'dodge!.mp3'))
-firesound = pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'fire.mp3'))
-birdsound = pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'bird.mp3'))
 
 #data
 data_easy = {
@@ -149,22 +210,23 @@ data_shop = {
 data_options = {
     'play_sfx': True,
     'play_music': True,
+    'controller_vibration': True,
     'show_easy': False,
     'show_normal': False,
     'show_hard': False
 }
 #loading data
 try:
-    with open(os.path.join('data','save_data_easy.json')) as save_data_easy:
-        data_easy = json.load(save_data_easy)
-    with open(os.path.join('data','save_data_normal.json')) as save_data_normal:
-        data_normal = json.load(save_data_normal)
-    with open(os.path.join('data','save_data_hard.json')) as save_data_hard:
-        data_hard = json.load(save_data_hard)
-    with open(os.path.join('data','save_data_shop.json')) as save_data_shop:
-        data_shop = json.load(save_data_shop)
-    with open(os.path.join('data','save_data_options.json')) as save_data_options:
-        data_options = json.load(save_data_options)
+    with open(path.join('data','save_data_easy.json')) as save_data_easy:
+        data_easy = load(save_data_easy)
+    with open(path.join('data','save_data_normal.json')) as save_data_normal:
+        data_normal = load(save_data_normal)
+    with open(path.join('data','save_data_hard.json')) as save_data_hard:
+        data_hard = load(save_data_hard)
+    with open(path.join('data','save_data_shop.json')) as save_data_shop:
+        data_shop = load(save_data_shop)
+    with open(path.join('data','save_data_options.json')) as save_data_options:
+        data_options = load(save_data_options)
 except:
     print("")
 
@@ -175,7 +237,7 @@ class player:
         self.y = y
         self.width = width
         self.height = height
-        self.img = pygame.image.load(os.path.join('Images', 'player', 'player.png')).convert_alpha()
+        self.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
         self.img = pygame.transform.flip(self.img, 90, 0)
         self.img = pygame.transform.scale(self.img, (self.width, self.height))
 
@@ -185,7 +247,7 @@ class bird:
         self.y = y
         self.width = width
         self.height = height
-        self.img = pygame.image.load(os.path.join('Images', 'obstacles', 'bird.png')).convert_alpha()
+        self.img = pygame.image.load(path.join('Images', 'obstacles', 'bird.png')).convert_alpha()
         self.img = pygame.transform.scale(self.img, (self.width, self.height))
 
 class fireball:
@@ -194,7 +256,7 @@ class fireball:
         self.y = y
         self.width = width
         self.height = height
-        self.img = pygame.image.load(os.path.join('Images', 'obstacles', 'fireball.png')).convert_alpha()
+        self.img = pygame.image.load(path.join('Images', 'obstacles', 'fireball.png')).convert_alpha()
         self.img = pygame.transform.scale(self.img, (self.width, self.height))
 
 class bird_rac:
@@ -205,16 +267,7 @@ class bird_rac:
         self.height = height
         self.img = pygame.transform.scale(bottom_cactus, (self.width, self.height))
 
-class difficulty_button:
-    def __init__(self, x, y, width, height, image):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.image = image
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
-
-class ui_button:
+class button:
     def __init__(self, x, y, width, height, image):
         self.x = x
         self.y = y
@@ -224,21 +277,21 @@ class ui_button:
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
 def win():
-    Money = ui_button(1030, 600, 250, 100, money_image)
+    Money = button(1030, 600, 250, 100, money_image)
     run = True
     clockyy = pygame.time.Clock()
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
                 pygame.quit()
                 run = False
             
@@ -270,25 +323,25 @@ def win():
 
         pygame.display.update()
 def credits():
-    global data_options
-    Back = ui_button(1030, 600, 250, 100, back_image)
-    Credits = ui_button(0, 0, screen_width, screen_height, credits_bg_image)
+    global data_options, window
+    Back = button(1030, 600, 250, 100, back_image)
+    Credits = button(0, 0, screen_width, screen_height, credits_bg_image)
     run = True
     clockyy = pygame.time.Clock()
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYBUTTONDOWN:
@@ -308,41 +361,41 @@ def shop():
     move_delay = 150  # milliseconds
     last_move_time = pygame.time.get_ticks()
 
-    Back = ui_button(0, 600, 250, 100, back_image)
-    Select_Box = ui_button(50, 200, 100, 50, select_box_image)
-    Cowboy_Hat = ui_button(50, 150, 100, 50, cowboy_hat_image)
-    Thinking_Hat = ui_button(350, 150, 100, 50, thinking_hat_image)
-    Top_Hat = ui_button(650, 150, 100, 50, top_hat_image)
-    Red_Cap = ui_button(950, 150, 100, 50, red_cap_image)
-    Party_Hat = ui_button(50, 300, 100, 50, party_hat_image)
-    Witch_Hat = ui_button(350, 300, 100, 50, witch_hat_image)
-    Mexican_Hat = ui_button(650, 300, 100, 50, mexican_hat_image)
-    King_Hat = ui_button(950, 300, 100, 50, king_hat_image)
-    Money = ui_button(0, 0, 250, 100, money_image)
-    Equip = ui_button(10000, 200, 100, 50, equip_image)
-    Equip2 = ui_button(10000, 200, 100, 50, equip_image)
-    Equip3 = ui_button(10000, 200, 100, 50, equip_image)
-    Equip4 = ui_button(10000, 200, 100, 50, equip_image)
-    Equip5 = ui_button(10000, 350, 100, 50, equip_image)
-    Equip6 = ui_button(10000, 350, 100, 50, equip_image)
-    Equip7 = ui_button(10000, 350, 100, 50, equip_image)
-    Equip8 = ui_button(10000, 350, 100, 50, equip_image)
-    Unequip = ui_button(10000, 200, 100, 50, unequip_image)
-    Unequip2 = ui_button(10000, 200, 100, 50, unequip_image)
-    Unequip3 = ui_button(10000, 200, 100, 50, unequip_image)
-    Unequip4 = ui_button(10000, 200, 100, 50, unequip_image)
-    Unequip5 = ui_button(10000, 350, 100, 50, unequip_image)
-    Unequip6 = ui_button(10000, 350, 100, 50, unequip_image)
-    Unequip7 = ui_button(10000, 350, 100, 50, unequip_image)
-    Unequip8 = ui_button(10000, 350, 100, 50, unequip_image)
-    Buy = ui_button(50, 200, 100, 50, buy_image)
-    Buy2 = ui_button(350, 200, 100, 50, buy_image)
-    Buy3 = ui_button(650, 200, 100, 50, buy_image)
-    Buy4 = ui_button(950, 200, 100, 50, buy_image)
-    Buy5 = ui_button(50, 350, 100, 50, buy_image)
-    Buy6 = ui_button(350, 350, 100, 50, buy_image)
-    Buy7 = ui_button(650, 350, 100, 50, buy_image)
-    Buy8 = ui_button(950, 350, 100, 50, buy_image)
+    Back = button(0, 600, 250, 100, back_image)
+    Select_Box = button(50, 200, 100, 50, select_box_image)
+    Cowboy_Hat = button(50, 150, 100, 50, cowboy_hat_image)
+    Thinking_Hat = button(350, 150, 100, 50, thinking_hat_image)
+    Top_Hat = button(650, 150, 100, 50, top_hat_image)
+    Red_Cap = button(950, 150, 100, 50, red_cap_image)
+    Party_Hat = button(50, 300, 100, 50, party_hat_image)
+    Witch_Hat = button(350, 300, 100, 50, witch_hat_image)
+    Mexican_Hat = button(650, 300, 100, 50, mexican_hat_image)
+    King_Hat = button(950, 300, 100, 50, king_hat_image)
+    Money = button(0, 0, 250, 100, money_image)
+    Equip = button(10000, 200, 100, 50, equip_image)
+    Equip2 = button(10000, 200, 100, 50, equip_image)
+    Equip3 = button(10000, 200, 100, 50, equip_image)
+    Equip4 = button(10000, 200, 100, 50, equip_image)
+    Equip5 = button(10000, 350, 100, 50, equip_image)
+    Equip6 = button(10000, 350, 100, 50, equip_image)
+    Equip7 = button(10000, 350, 100, 50, equip_image)
+    Equip8 = button(10000, 350, 100, 50, equip_image)
+    Unequip = button(10000, 200, 100, 50, unequip_image)
+    Unequip2 = button(10000, 200, 100, 50, unequip_image)
+    Unequip3 = button(10000, 200, 100, 50, unequip_image)
+    Unequip4 = button(10000, 200, 100, 50, unequip_image)
+    Unequip5 = button(10000, 350, 100, 50, unequip_image)
+    Unequip6 = button(10000, 350, 100, 50, unequip_image)
+    Unequip7 = button(10000, 350, 100, 50, unequip_image)
+    Unequip8 = button(10000, 350, 100, 50, unequip_image)
+    Buy = button(50, 200, 100, 50, buy_image)
+    Buy2 = button(350, 200, 100, 50, buy_image)
+    Buy3 = button(650, 200, 100, 50, buy_image)
+    Buy4 = button(950, 200, 100, 50, buy_image)
+    Buy5 = button(50, 350, 100, 50, buy_image)
+    Buy6 = button(350, 350, 100, 50, buy_image)
+    Buy7 = button(650, 350, 100, 50, buy_image)
+    Buy8 = button(950, 350, 100, 50, buy_image)
     if data_shop['cowboy_hat_unlocked'] == True:
         Buy.image = pygame.transform.scale(buy_image, (0, 0))
         Buy.x = 10000
@@ -431,16 +484,16 @@ def shop():
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
             current_time = pygame.time.get_ticks()
@@ -453,12 +506,12 @@ def shop():
                 if pygame.joystick.Joystick(0).get_button(0):
                         if Select_Box.x == Buy.x and Select_Box.y == Buy.y and data_shop['money'] >= 100 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 100
                             data_shop['show_cost'] = False
                             data_shop['cowboy_hat_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy.x = 10000
                             Equip.image = pygame.transform.scale(equip_image, (100, 50))
@@ -467,12 +520,12 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Buy2.x and Select_Box.y == Buy2.y and data_shop['money'] >= 250 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 250
                             data_shop['show_cost2'] = False
                             data_shop['thinking_hat_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy2.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy2.x = 10000
                             Equip2.image = pygame.transform.scale(equip_image, (100, 50))
@@ -481,12 +534,12 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Buy3.x and Select_Box.y == Buy3.y and data_shop['money'] >= 500 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 500
                             data_shop['show_cost3'] = False
                             data_shop['top_hat_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy3.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy3.x = 10000
                             Equip3.image = pygame.transform.scale(equip_image, (100, 50))
@@ -495,12 +548,12 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Buy4.x and Select_Box.y == Buy4.y and data_shop['money'] >= 1000 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 1000
                             data_shop['show_cost4'] = False
                             data_shop['red_cap_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy4.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy4.x = 10000
                             Equip4.image = pygame.transform.scale(equip_image, (100, 50))
@@ -509,12 +562,12 @@ def shop():
                             last_move_time = current_time                        
                         if Select_Box.x == Buy5.x and Select_Box.y == Buy5.y and data_shop['money'] >= 100 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 100
                             data_shop['show_cost5'] = False
                             data_shop['party_hat_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy5.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy5.x = 10000
                             Equip5.image = pygame.transform.scale(equip_image, (100, 50))
@@ -523,12 +576,12 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Buy6.x and Select_Box.y == Buy6.y and data_shop['money'] >= 500 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 500
                             data_shop['show_cost7'] = False
                             data_shop['witch_hat_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy6.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy6.x = 10000
                             Equip6.image = pygame.transform.scale(equip_image, (100, 50))
@@ -537,12 +590,12 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Buy7.x and Select_Box.y == Buy7.y and data_shop['money'] >= 250 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 250
                             data_shop['show_cost6'] = False
                             data_shop['mexican_hat_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy7.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy7.x = 10000
                             Equip7.image = pygame.transform.scale(equip_image, (100, 50))
@@ -551,12 +604,12 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Buy8.x and Select_Box.y == Buy8.y and data_shop['money'] >= 2000 and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                             data_shop['money'] -= 2000
                             data_shop['show_cost8'] = False
                             data_shop['king_hat_unlocked'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Buy8.image = pygame.transform.scale(buy_image, (0, 0))
                             Buy8.x = 10000
                             Equip8.image = pygame.transform.scale(equip_image, (100, 50))
@@ -565,10 +618,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip.x and Select_Box.y == Equip.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['cowboy_hat_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip.x = 10000
                             Unequip.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -576,10 +629,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip2.x and Select_Box.y == Equip2.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['thinking_hat_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip2.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip2.x = 10000
                             Unequip2.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -587,10 +640,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip3.x and Select_Box.y == Equip3.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['top_hat_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip3.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip3.x = 10000
                             Unequip3.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -598,10 +651,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip4.x and Select_Box.y == Equip4.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['red_cap_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip4.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip4.x = 10000
                             Unequip4.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -609,10 +662,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip5.x and Select_Box.y == Equip5.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['party_hat_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip5.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip5.x = 10000
                             Unequip5.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -620,10 +673,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip6.x and Select_Box.y == Equip6.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['witch_hat_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip6.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip6.x = 10000
                             Unequip6.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -631,10 +684,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip7.x and Select_Box.y == Equip7.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['mexican_hat_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip7.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip7.x = 10000
                             Unequip7.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -642,10 +695,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Equip8.x and Select_Box.y == Equip8.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_shop['king_hat_equipped'] = True
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip8.image = pygame.transform.scale(equip_image, (0, 0))
                             Equip8.x = 10000
                             Unequip8.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -653,10 +706,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip.x and Select_Box.y == Unequip.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['cowboy_hat_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip.x = 50
                             Unequip.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -664,10 +717,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip2.x and Select_Box.y == Unequip2.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['thinking_hat_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip2.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip2.x = 350
                             Unequip2.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -675,10 +728,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip3.x and Select_Box.y == Unequip3.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['top_hat_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip3.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip3.x = 650
                             Unequip3.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -686,10 +739,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip4.x and Select_Box.y == Unequip4.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['red_cap_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip4.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip4.x = 950
                             Unequip4.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -697,10 +750,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip5.x and Select_Box.y == Unequip5.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['party_hat_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip5.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip5.x = 50
                             Unequip5.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -708,10 +761,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip6.x and Select_Box.y == Unequip6.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['witch_hat_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip6.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip6.x = 350
                             Unequip6.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -719,10 +772,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip7.x and Select_Box.y == Unequip7.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['mexican_hat_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip7.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip7.x = 650
                             Unequip7.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -730,10 +783,10 @@ def shop():
                             last_move_time = current_time
                         if Select_Box.x == Unequip8.x and Select_Box.y == Unequip8.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_shop['king_hat_equipped'] = False
-                            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                                json.dump(data_shop, save_data_shop)
+                            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                                dump(data_shop, save_data_shop)
                             Equip8.image = pygame.transform.scale(equip_image, (100, 50))
                             Equip8.x = 950
                             Unequip8.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -787,12 +840,12 @@ def shop():
 
                 if buy_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 100:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 100
                     data_shop['show_cost'] = False
                     data_shop['cowboy_hat_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy.x = 10000
                     Equip.image = pygame.transform.scale(equip_image, (100, 50))
@@ -801,16 +854,16 @@ def shop():
 
                 if buy_rect.collidepoint(mousex, mousey) and data_shop['money'] < 100 and play_denied == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if buy2_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 250:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 250
                     data_shop['show_cost2'] = False
                     data_shop['thinking_hat_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy2.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy2.x = 10000
                     Equip2.image = pygame.transform.scale(equip_image, (100, 50))
@@ -819,16 +872,16 @@ def shop():
 
                 if buy2_rect.collidepoint(mousex, mousey) and data_shop['money'] < 250 and play_denied2 == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if buy3_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 500:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 500
                     data_shop['show_cost3'] = False
                     data_shop['top_hat_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy3.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy3.x = 10000
                     Equip3.image = pygame.transform.scale(equip_image, (100, 50))
@@ -837,16 +890,16 @@ def shop():
 
                 if buy3_rect.collidepoint(mousex, mousey) and data_shop['money'] < 500 and play_denied3 == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if buy4_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 1000:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 1000
                     data_shop['show_cost4'] = False
                     data_shop['red_cap_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy4.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy4.x = 10000
                     Equip4.image = pygame.transform.scale(equip_image, (100, 50))
@@ -855,14 +908,14 @@ def shop():
 
                 if buy4_rect.collidepoint(mousex, mousey) and data_shop['money'] < 1000 and play_denied4 == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if equip_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['cowboy_hat_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip.x = 10000
                     Unequip.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -870,10 +923,10 @@ def shop():
 
                 if unequip_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['cowboy_hat_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip.x = 50
                     Unequip.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -881,10 +934,10 @@ def shop():
 
                 if equip2_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['thinking_hat_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip2.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip2.x = 10000
                     Unequip2.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -892,10 +945,10 @@ def shop():
 
                 if unequip2_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['thinking_hat_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip2.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip2.x = 350
                     Unequip2.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -903,10 +956,10 @@ def shop():
                 
                 if equip3_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['top_hat_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip3.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip3.x = 10000
                     Unequip3.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -914,10 +967,10 @@ def shop():
                 
                 if unequip3_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['top_hat_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip3.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip3.x = 650
                     Unequip3.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -925,10 +978,10 @@ def shop():
                 
                 if equip4_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['red_cap_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip4.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip4.x = 10000
                     Unequip4.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -936,10 +989,10 @@ def shop():
 
                 if unequip4_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['red_cap_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip4.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip4.x = 950
                     Unequip4.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -947,12 +1000,12 @@ def shop():
 
                 if buy5_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 100:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 100
                     data_shop['show_cost5'] = False
                     data_shop['party_hat_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy5.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy5.x = 10000
                     Equip5.image = pygame.transform.scale(equip_image, (100, 50))
@@ -961,16 +1014,16 @@ def shop():
 
                 if buy5_rect.collidepoint(mousex, mousey) and data_shop['money'] < 100 and play_denied5 == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if buy6_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 500:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 500
                     data_shop['show_cost7'] = False
                     data_shop['witch_hat_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy6.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy6.x = 10000
                     Equip6.image = pygame.transform.scale(equip_image, (100, 50))
@@ -979,16 +1032,16 @@ def shop():
 
                 if buy6_rect.collidepoint(mousex, mousey) and data_shop['money'] < 500 and play_denied6 == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if buy7_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 250:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 250
                     data_shop['show_cost6'] = False
                     data_shop['mexican_hat_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy7.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy7.x = 10000
                     Equip7.image = pygame.transform.scale(equip_image, (100, 50))
@@ -997,16 +1050,16 @@ def shop():
 
                 if buy7_rect.collidepoint(mousex, mousey) and data_shop['money'] < 250 and play_denied7 == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if buy8_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 2000:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'buy.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'buy.mp3')).play()
                     data_shop['money'] -= 2000
                     data_shop['show_cost8'] = False
                     data_shop['king_hat_unlocked'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Buy8.image = pygame.transform.scale(buy_image, (0, 0))
                     Buy8.x = 10000
                     Equip8.image = pygame.transform.scale(equip_image, (100, 50))
@@ -1015,14 +1068,14 @@ def shop():
 
                 if buy8_rect.collidepoint(mousex, mousey) and data_shop['money'] < 2000 and play_denied8 == True:
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
 
                 if equip5_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['party_hat_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip5.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip5.x = 10000
                     Unequip5.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -1030,10 +1083,10 @@ def shop():
 
                 if unequip5_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['party_hat_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip5.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip5.x = 50
                     Unequip5.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -1041,10 +1094,10 @@ def shop():
 
                 if equip6_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['witch_hat_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip6.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip6.x = 10000
                     Unequip6.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -1052,10 +1105,10 @@ def shop():
 
                 if unequip6_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['witch_hat_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip6.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip6.x = 350
                     Unequip6.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -1063,10 +1116,10 @@ def shop():
                 
                 if equip7_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['mexican_hat_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip7.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip7.x = 10000
                     Unequip7.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -1074,10 +1127,10 @@ def shop():
                 
                 if unequip7_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['mexican_hat_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip7.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip7.x = 650
                     Unequip7.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -1085,10 +1138,10 @@ def shop():
                 
                 if equip8_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_shop['king_hat_equipped'] = True
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip8.image = pygame.transform.scale(equip_image, (0, 0))
                     Equip8.x = 10000
                     Unequip8.image = pygame.transform.scale(unequip_image, (100, 50))
@@ -1096,10 +1149,10 @@ def shop():
 
                 if unequip8_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_shop['king_hat_equipped'] = False
-                    with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                        json.dump(data_shop, save_data_shop)
+                    with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                        dump(data_shop, save_data_shop)
                     Equip8.image = pygame.transform.scale(equip_image, (100, 50))
                     Equip8.x = 950
                     Unequip8.image = pygame.transform.scale(unequip_image, (0, 0))
@@ -1174,17 +1227,22 @@ def shop():
 def options():
     global data_options, show_select_box
 
-    move_delay = 150  # milliseconds
+    move_delay = 250  # milliseconds
     last_move_time = pygame.time.get_ticks()
+    move_delay2 = 250  # milliseconds
+    last_move_time2 = pygame.time.get_ticks()
 
-    Select_Box = ui_button(760, 400, 250, 100, select_box_image)
-    Back = ui_button(0, 600, 250, 100, back_image)
-    Checked_off = ui_button(10000, 400, 250, 100, checked_off_image)
-    Checked_off2 = ui_button(10000, 300, 250, 100, checked_off_image)
-    Checked = ui_button(760, 400, 250, 100, checked_image)
-    Checked2 = ui_button(760, 300, 250, 100, checked_image)
-    Music = ui_button(500, 400, 250, 100, music_image)
-    SFX = ui_button(500, 300, 250, 100, sfx_image)
+    Select_Box = button(760, 400, 250, 100, select_box_image)
+    Back = button(0, 600, 250, 100, back_image)
+    Checked_off = button(10000, 400, 250, 100, checked_off_image)
+    Checked_off2 = button(10000, 300, 250, 100, checked_off_image)
+    Checked_off3 = button(10000, 200, 250, 100, checked_off_image)
+    Checked = button(760, 400, 250, 100, checked_image)
+    Checked2 = button(760, 300, 250, 100, checked_image)
+    Checked3 = button(760, 200, 250, 100, checked_image)
+    Music = button(500, 400, 250, 100, music_image)
+    SFX = button(500, 300, 250, 100, sfx_image)
+    Controller_Vibration = button(500, 200, 250, 100, controller_vibration_image)
 
     
     if data_options['play_music'] == False: 
@@ -1207,6 +1265,16 @@ def options():
         Checked2.x = 760
         Checked_off2.image = pygame.transform.scale(checked_off_image, (0, 0))
         Checked_off2.x = 10000
+    if data_options['controller_vibration'] == False:
+        Checked3.image = pygame.transform.scale(checked_image, (0, 0))
+        Checked3.x = 10000
+        Checked_off3.image = pygame.transform.scale(checked_off_image, (250, 100))
+        Checked_off3.x = 760
+    if data_options['controller_vibration'] == True:
+        Checked3.image = pygame.transform.scale(checked_image, (250, 100))
+        Checked3.x = 760
+        Checked_off3.image = pygame.transform.scale(checked_off_image, (0, 0))
+        Checked_off3.x = 10000
 
     run = True
     clockyy = pygame.time.Clock()
@@ -1214,19 +1282,20 @@ def options():
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
             current_time = pygame.time.get_ticks()
+            current_time2 = pygame.time.get_ticks()
             if event.type == pygame.JOYBUTTONDOWN:
                 if pygame.joystick.Joystick(0).get_button(1):
                         start()
@@ -1235,10 +1304,10 @@ def options():
                 if pygame.joystick.Joystick(0).get_button(0):
                         if Select_Box.y == Checked.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_options['play_music'] = False
-                            with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                                json.dump(data_options, save_data_options)
+                            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                                dump(data_options, save_data_options)
                             Checked.image = pygame.transform.scale(checked_image, (0, 0))
                             Checked.x = 10000
                             Checked_off.image = pygame.transform.scale(checked_off_image, (250, 100))
@@ -1246,10 +1315,10 @@ def options():
                             last_move_time = current_time
                         if Select_Box.y == Checked_off.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                             data_options['play_music'] = True
-                            with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                                json.dump(data_options, save_data_options)
+                            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                                dump(data_options, save_data_options)
                             Checked.image = pygame.transform.scale(checked_image, (250, 100))
                             Checked.x = 760
                             Checked_off.image = pygame.transform.scale(checked_off_image, (0, 0))
@@ -1257,10 +1326,10 @@ def options():
                             last_move_time = current_time
                         if Select_Box.y == Checked2.y and current_time - last_move_time > move_delay:
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                             data_options['play_sfx'] = False
-                            with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                                json.dump(data_options, save_data_options)
+                            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                                dump(data_options, save_data_options)
                             Checked2.image = pygame.transform.scale(checked_image, (0, 0))
                             Checked2.x = 10000
                             Checked_off2.image = pygame.transform.scale(checked_off_image, (250, 100))
@@ -1269,22 +1338,46 @@ def options():
                         if Select_Box.y == Checked_off2.y and current_time - last_move_time > move_delay:
                             data_options['play_sfx'] = True
                             if data_options['play_sfx'] == True:
-                                pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
-                            with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                                json.dump(data_options, save_data_options)
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                                dump(data_options, save_data_options)
                             Checked2.image = pygame.transform.scale(checked_image, (250, 100))
                             Checked2.x = 760
                             Checked_off2.image = pygame.transform.scale(checked_off_image, (0, 0))
                             Checked_off2.x = 10000
                             last_move_time = current_time
+                        if Select_Box.y == Checked3.y and current_time - last_move_time > move_delay:
+                            if data_options['play_sfx'] == True:
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
+                            data_options['controller_vibration'] = False
+                            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                                dump(data_options, save_data_options)
+                            Checked3.image = pygame.transform.scale(checked_image, (0, 0))
+                            Checked3.x = 10000
+                            Checked_off3.image = pygame.transform.scale(checked_off_image, (250, 100))
+                            Checked_off3.x = 760
+                            last_move_time = current_time
+                        if Select_Box.y == Checked_off3.y and current_time - last_move_time > move_delay:
+                            data_options['controller_vibration'] = True
+                            if data_options['play_sfx'] == True:
+                                pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                                dump(data_options, save_data_options)
+                            Checked3.image = pygame.transform.scale(checked_image, (250, 100))
+                            Checked3.x = 760
+                            Checked_off3.image = pygame.transform.scale(checked_off_image, (0, 0))
+                            Checked_off3.x = 10000
+                            last_move_time = current_time
 
             if event.type == pygame.JOYAXISMOTION:
                 io2 = round(pygame.joystick.Joystick(0).get_axis(1))
-                if io2 == -1 and Select_Box.y >= 400: #up
+                if io2 == -1 and Select_Box.y >= 300 and current_time2 - last_move_time2 > move_delay2: #up
                     Select_Box.y -= 100
+                    last_move_time2 = current_time2
                     
-                if io2 == 1 and Select_Box.y < 400: #down
+                if io2 == 1 and Select_Box.y < 400 and current_time2 - last_move_time2 > move_delay2: #down
                     Select_Box.y += 100
+                    last_move_time2 = current_time2
                     
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mousex, mousey = pygame.mouse.get_pos()
@@ -1293,35 +1386,37 @@ def options():
                 checked_rect = pygame.Rect(Checked.x, Checked.y, Checked.width, Checked.height)
                 checked_off2_rect = pygame.Rect(Checked_off2.x, Checked_off2.y, Checked_off2.width, Checked_off2.height)
                 checked2_rect = pygame.Rect(Checked2.x, Checked2.y, Checked2.width, Checked2.height)
+                checked_off3_rect = pygame.Rect(Checked_off3.x, Checked_off3.y, Checked_off3.width, Checked_off3.height)
+                checked3_rect = pygame.Rect(Checked3.x, Checked3.y, Checked3.width, Checked3.height)
 
                 if back_rect.collidepoint(mousex, mousey):
                     start()
                 if checked_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_options['play_music'] = False
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Checked.image = pygame.transform.scale(checked_image, (0, 0))
                     Checked.x = 10000
                     Checked_off.image = pygame.transform.scale(checked_off_image, (250, 100))
                     Checked_off.x = 760
                 if checked_off_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                     data_options['play_music'] = True
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Checked.image = pygame.transform.scale(checked_image, (250, 100))
                     Checked.x = 760
                     Checked_off.image = pygame.transform.scale(checked_off_image, (0, 0))
                     Checked_off.x = 10000
                 if checked2_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                     data_options['play_sfx'] = False
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Checked2.image = pygame.transform.scale(checked_image, (0, 0))
                     Checked2.x = 10000
                     Checked_off2.image = pygame.transform.scale(checked_off_image, (250, 100))
@@ -1329,35 +1424,58 @@ def options():
                 if checked_off2_rect.collidepoint(mousex, mousey):
                     data_options['play_sfx'] = True
                     if data_options['play_sfx'] == True:
-                        pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Checked2.image = pygame.transform.scale(checked_image, (250, 100))
                     Checked2.x = 760
                     Checked_off2.image = pygame.transform.scale(checked_off_image, (0, 0))
                     Checked_off2.x = 10000
+                if checked3_rect.collidepoint(mousex, mousey):
+                    if data_options['play_sfx'] == True:
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
+                    data_options['controller_vibration'] = False
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
+                    Checked3.image = pygame.transform.scale(checked_image, (0, 0))
+                    Checked3.x = 10000
+                    Checked_off3.image = pygame.transform.scale(checked_off_image, (250, 100))
+                    Checked_off3.x = 760
+                if checked_off3_rect.collidepoint(mousex, mousey):
+                    data_options['controller_vibration'] = True
+                    if data_options['play_sfx'] == True:
+                        pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
+                    Checked3.image = pygame.transform.scale(checked_image, (250, 100))
+                    Checked3.x = 760
+                    Checked_off3.image = pygame.transform.scale(checked_off_image, (0, 0))
+                    Checked_off3.x = 10000
         window.fill((204, 102, 25))
         window.blit(Back.image, (Back.x, Back.y))
         window.blit(Music.image, (Music.x, Music.y))
         window.blit(SFX.image, (SFX.x, SFX.y))
+        window.blit(Controller_Vibration.image, (Controller_Vibration.x, Controller_Vibration.y))
         window.blit(Checked.image, (Checked.x, Checked.y))
         window.blit(Checked_off.image, (Checked_off.x, Checked_off.y))
         window.blit(Checked2.image, (Checked2.x, Checked2.y))
         window.blit(Checked_off2.image, (Checked_off2.x, Checked_off2.y))
+        window.blit(Checked3.image, (Checked3.x, Checked3.y))
+        window.blit(Checked_off3.image, (Checked_off3.x, Checked_off3.y))
         if show_select_box == True:
             window.blit(Select_Box.image, (Select_Box.x, Select_Box.y))
         pygame.display.update()
 def start():
     global show_textbox, show_start, data_easy, data_normal, data_hard, data_options, data_shop
-    Play = ui_button(500, 150, 250, 100, play_image)
-    Options = ui_button(500, 260, 250, 100, options_image)
-    Shop = ui_button(500, 370, 250, 100, shop_image)
-    Credits = ui_button(500, 480, 250, 100, credits_image)
-    Quit = ui_button(500, 600, 250, 100, quit_image)
-    Reset = ui_button(1030, 0, 250, 100, reset_image)
-    Yes = ui_button(450, 500, 150, 100, yes_image)
-    No = ui_button(700, 500, 150, 100, no_image)
-    TextBox = ui_button(450, 200, 400, 400, textbox_image)
+    Play = button(500, 150, 250, 100, play_image)
+    Options = button(500, 260, 250, 100, options_image)
+    Shop = button(500, 370, 250, 100, shop_image)
+    Credits = button(500, 480, 250, 100, credits_image)
+    Quit = button(500, 600, 250, 100, quit_image)
+    Reset = button(1030, 0, 250, 100, reset_image)
+    Yes = button(450, 500, 150, 100, yes_image)
+    No = button(700, 500, 150, 100, no_image)
+    TextBox = button(450, 200, 400, 400, textbox_image)
     show_textbox = False
     run = True
     clockyy = pygame.time.Clock()
@@ -1365,29 +1483,29 @@ def start():
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYBUTTONDOWN:
                 if show_textbox == True:
                     if pygame.joystick.Joystick(0).get_button(1):
                         if data_options['play_sfx'] == True:
-                            pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                            pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                         show_textbox = False
                         show_start = True
                         start()
                     if pygame.joystick.Joystick(0).get_button(0):
                         if data_options['play_sfx'] == True:
-                            pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                            pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                         data_shop['money'] = 0
                         data_shop['red_cap_equipped'] = False
                         data_shop['thinking_hat_equipped'] = False
@@ -1415,6 +1533,7 @@ def start():
                         data_shop['show_cost8'] = True
                         data_options['play_sfx'] = True
                         data_options['play_music'] = True
+                        data_options['controller_vibration'] = True
                         data_options['show_easy'] = False
                         data_options['show_normal'] = False
                         data_options['show_hard'] = False
@@ -1427,16 +1546,16 @@ def start():
                         data_hard['birds_dodged'] = 0
                         data_hard['fireballs_dodged'] = 0
                         data_hard['meters_up'] = 0
-                        with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                            json.dump(data_easy, save_data_easy)
-                        with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                            json.dump(data_normal, save_data_normal)
-                        with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                            json.dump(data_hard, save_data_hard)
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                            json.dump(data_options, save_data_options)
+                        with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                            dump(data_easy, save_data_easy)
+                        with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                            dump(data_normal, save_data_normal)
+                        with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                            dump(data_hard, save_data_hard)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                            dump(data_options, save_data_options)
                         show_start = True
                         start()
                 if show_start == True:
@@ -1481,13 +1600,13 @@ def start():
                 if show_textbox == True:
                     if no_rect.collidepoint(mousex, mousey):
                         if data_options['play_sfx'] == True:
-                            pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'denied.mp3')).play()
+                            pygame.mixer.Sound(path.join('Music', 'Sounds', 'denied.mp3')).play()
                         show_textbox = False
                         show_start = True
                         start()
                     if yes_rect.collidepoint(mousex, mousey):
                         if data_options['play_sfx'] == True:
-                            pygame.mixer.Sound(os.path.join('Music', 'Sounds', 'equipped.mp3')).play()
+                            pygame.mixer.Sound(path.join('Music', 'Sounds', 'equipped.mp3')).play()
                         data_shop['money'] = 0
                         data_shop['red_cap_equipped'] = False
                         data_shop['thinking_hat_equipped'] = False
@@ -1515,6 +1634,7 @@ def start():
                         data_shop['show_cost8'] = True
                         data_options['play_sfx'] = True
                         data_options['play_music'] = True
+                        data_options['controller_vibration'] = True
                         data_options['show_easy'] = False
                         data_options['show_normal'] = False
                         data_options['show_hard'] = False
@@ -1527,16 +1647,16 @@ def start():
                         data_hard['birds_dodged'] = 0
                         data_hard['fireballs_dodged'] = 0
                         data_hard['meters_up'] = 0
-                        with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                            json.dump(data_easy, save_data_easy)
-                        with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                            json.dump(data_normal, save_data_normal)
-                        with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                            json.dump(data_hard, save_data_hard)
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                            json.dump(data_options, save_data_options)
+                        with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                            dump(data_easy, save_data_easy)
+                        with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                            dump(data_normal, save_data_normal)
+                        with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                            dump(data_hard, save_data_hard)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                            dump(data_options, save_data_options)
                         show_start = True
                         start()
                 if reset_rect.collidepoint(mousex, mousey):
@@ -1544,7 +1664,7 @@ def start():
                     show_start = False
         #text5
         title_text = pygame.font.SysFont('comicsans', 90).render("Cactus Climber", 1, (64, 255, 25)) 
-        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.6", 1, (64, 255, 25))
+        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.7", 1, (64, 255, 25))
         window.fill((204, 102, 25))
         window.blit(Play.image, (Play.x, Play.y))
         window.blit(Options.image, (Options.x, Options.y))
@@ -1562,17 +1682,17 @@ def start():
 
 def mainmenu():
     global diff, data_options
-    Money = ui_button(1030, 0, 250, 100, money_image)
-    Back = ui_button(0, 670, 100, 50, back_image)
-    Easy = difficulty_button(50, 300, 350, 200, easy_image)
-    Normal = difficulty_button(450, 300, 350, 200, normal_image)
-    Hard = difficulty_button(850, 300, 350, 200, hard_image)
-    Easy_Stats = difficulty_button(50, 500, 250, 50, show_stats_image)
-    Normal_Stats = difficulty_button(450, 500, 250, 50, show_stats_image)
-    Hard_Stats = difficulty_button(850, 500, 250, 50, show_stats_image)
-    Easy_Hide_Stats = difficulty_button(10050, 500, 250, 50, hide_stats_image)
-    Normal_Hide_Stats = difficulty_button(1450, 500, 250, 50, hide_stats_image)
-    Hard_Hide_Stats = difficulty_button(1850, 500, 250, 50, hide_stats_image)
+    Money = button(1030, 0, 250, 100, money_image)
+    Back = button(0, 670, 100, 50, back_image)
+    Easy = button(50, 300, 350, 200, easy_image)
+    Normal = button(450, 300, 350, 200, normal_image)
+    Hard = button(850, 300, 350, 200, hard_image)
+    Easy_Stats = button(50, 500, 250, 50, show_stats_image)
+    Normal_Stats = button(450, 500, 250, 50, show_stats_image)
+    Hard_Stats = button(850, 500, 250, 50, show_stats_image)
+    Easy_Hide_Stats = button(10050, 500, 250, 50, hide_stats_image)
+    Normal_Hide_Stats = button(1450, 500, 250, 50, hide_stats_image)
+    Hard_Hide_Stats = button(1850, 500, 250, 50, hide_stats_image)
     if data_options['show_easy'] == True:
             Easy_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
             Easy_Stats.x = 10000
@@ -1595,16 +1715,16 @@ def mainmenu():
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYBUTTONDOWN:
@@ -1621,24 +1741,24 @@ def mainmenu():
                     start()
                 if pygame.joystick.Joystick(0).get_button(4):
                     data_options['show_easy'] = True
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Easy_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
                     Easy_Stats.x = 10000
                     Easy_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (250, 50))
                     Easy_Hide_Stats.x = 50
                 if pygame.joystick.Joystick(0).get_button(5):
                     data_options['show_normal'] = True
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Normal_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
                     Normal_Stats.x = 10000
                     Normal_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (250, 50))
                     Normal_Hide_Stats.x = 450
                 if pygame.joystick.Joystick(0).get_button(7):
                     data_options['show_hard'] = True
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Hard_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
                     Hard_Stats.x = 10000
                     Hard_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (250, 50))
@@ -1669,8 +1789,8 @@ def mainmenu():
 
                 if easy_stats_rect.collidepoint(mousex, mousey):   
                     data_options['show_easy'] = True
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Easy_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
                     Easy_Stats.x = 10000
                     Easy_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (250, 50))
@@ -1678,8 +1798,8 @@ def mainmenu():
                 
                 if easy_hide_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_easy'] = False
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Easy_Stats.image = pygame.transform.scale(show_stats_image, (250, 50))
                     Easy_Stats.x = 50
                     Easy_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
@@ -1687,8 +1807,8 @@ def mainmenu():
 
                 if normal_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_normal'] = True
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Normal_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
                     Normal_Stats.x = 10000
                     Normal_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (250, 50))
@@ -1696,8 +1816,8 @@ def mainmenu():
                 
                 if normal_hide_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_normal'] = False
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Normal_Stats.image = pygame.transform.scale(show_stats_image, (250, 50))
                     Normal_Stats.x = 450
                     Normal_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
@@ -1705,8 +1825,8 @@ def mainmenu():
 
                 if hard_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_hard'] = True
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Hard_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
                     Hard_Stats.x = 10000
                     Hard_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (250, 50))
@@ -1714,8 +1834,8 @@ def mainmenu():
 
                 if hard_hide_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_hard'] = False
-                    with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                        json.dump(data_options, save_data_options)
+                    with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                        dump(data_options, save_data_options)
                     Hard_Stats.image = pygame.transform.scale(show_stats_image, (250, 50))
                     Hard_Stats.x = 850
                     Hard_Hide_Stats.image = pygame.transform.scale(hide_stats_image, (0, 0))
@@ -1741,7 +1861,7 @@ def mainmenu():
         total_birds_dodged_easy_text = pygame.font.SysFont('comicsans', 20).render(f"Total Birds Dodged: {data_easy['birds_dodged']}", 1, (255, 255, 255))
 
         title_text = pygame.font.SysFont('comicsans', 140).render("Cactus Climber", 1, (64, 255, 25)) 
-        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.6", 1, (64, 255, 25))
+        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.7", 1, (64, 255, 25))
         money_text = pygame.font.SysFont('comicsans', 80).render(f"{data_shop['money']} : ", 1, (64, 255, 25))
 
         window.fill((204, 102, 25))
@@ -1778,15 +1898,15 @@ def mainmenu():
 
 def mainspot():
     global data_shop
-    Cowboy_Hat = ui_button(175, 380, 40, 30, cowboy_hat_image)
-    Thinking_Hat = ui_button(175, 380, 40, 30, thinking_hat_image)
-    Top_Hat = ui_button(175, 375, 40, 30, top_hat_image)
-    Red_Cap = ui_button(180, 380, 40, 30, red_cap_image)
+    Cowboy_Hat = button(175, 380, 40, 30, cowboy_hat_image)
+    Thinking_Hat = button(175, 380, 40, 30, thinking_hat_image)
+    Top_Hat = button(175, 375, 40, 30, top_hat_image)
+    Red_Cap = button(180, 380, 40, 30, red_cap_image)
     Red_Cap.image = pygame.transform.flip(Red_Cap.image, 90, 0)
-    Party_Hat = ui_button(175, 380, 40, 30, party_hat_image)
-    Witch_Hat = ui_button(175, 375, 40, 30, witch_hat_image)
-    Mexican_Hat = ui_button(175, 380, 40, 30, mexican_hat_image)
-    King_Hat = ui_button(175, 380, 40, 30, king_hat_image)
+    Party_Hat = button(175, 380, 40, 30, party_hat_image)
+    Witch_Hat = button(175, 375, 40, 30, witch_hat_image)
+    Mexican_Hat = button(175, 380, 40, 30, mexican_hat_image)
+    King_Hat = button(175, 380, 40, 30, king_hat_image)
     maintheme.stop()
     run = True
     clockyy = pygame.time.Clock()
@@ -1794,16 +1914,16 @@ def mainspot():
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYAXISMOTION:
@@ -1853,24 +1973,24 @@ def mainspot():
 def endvideo():
     run = True
     clockyy = pygame.time.Clock()
-    endvid = moviepy.editor.VideoFileClip("Videos/end.mp4")
+    endvid = VideoFileClip("Videos/end.mp4")
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
-                
+        
         endvid.preview()
         pygame.display.update()
         pygame.time.wait(5000)
@@ -1881,21 +2001,21 @@ def endvideo():
 def firstvideo_easy():
     run = True
     clockyy = pygame.time.Clock()
-    beginvid = moviepy.editor.VideoFileClip("Videos/begin.mp4")
+    beginvid = VideoFileClip("Videos/begin.mp4")
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
                 
@@ -1908,21 +2028,21 @@ def firstvideo_easy():
 def firstvideo_normal():
     run = True
     clockyy = pygame.time.Clock()
-    beginvid = moviepy.editor.VideoFileClip("Videos/begin.mp4")
+    beginvid = VideoFileClip("Videos/begin.mp4")
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
                 
@@ -1935,21 +2055,21 @@ def firstvideo_normal():
 def firstvideo_hard():
     run = True
     clockyy = pygame.time.Clock()
-    beginvid = moviepy.editor.VideoFileClip("Videos/begin.mp4")
+    beginvid = VideoFileClip("Videos/begin.mp4")
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
                 
@@ -1962,21 +2082,21 @@ def firstvideo_hard():
 def fireballdeathvid():
     run = True
     clockyy = pygame.time.Clock()
-    fireballdeath = moviepy.editor.VideoFileClip("Videos/fireballdeath.mp4")
+    fireballdeath = VideoFileClip("Videos/fireballdeath.mp4")
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
                 
@@ -1990,21 +2110,21 @@ def fireballdeathvid():
 def birddeathvid():
     run = True
     clockyy = pygame.time.Clock()
-    birddeath = moviepy.editor.VideoFileClip("Videos/birddeath.mp4")
+    birddeath = VideoFileClip("Videos/birddeath.mp4")
     while run:  
         clockyy.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 pygame.quit()
                 run = False
                 
@@ -2028,7 +2148,7 @@ def main_easy():
     bird1 = bird(0, 720, 100, 100)
     fireball1 = fireball(760, player1.y - 1000, 25, 25)
     bird_rac1 = bird_rac(0, 300, 740, 100)
-    Money = ui_button(1030, 600, 250, 100, money_image)
+    Money = button(1030, 600, 250, 100, money_image)
     
     run = True
     bgy = 0
@@ -2038,12 +2158,12 @@ def main_easy():
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 run = False
                 pygame.quit()
             if event.type == pygame.JOYAXISMOTION:
@@ -2053,13 +2173,13 @@ def main_easy():
                         data_shop['money'] += 1
                         data_easy['meters_up'] += 1
                         meters_up += 1
-                        player1.img = pygame.image.load(os.path.join('Images', 'player', 'player.png')).convert_alpha()
+                        player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x += 150
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                            json.dump(data_easy, save_data_easy)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                            dump(data_easy, save_data_easy)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 150
@@ -2071,27 +2191,27 @@ def main_easy():
                         data_shop['money'] += 1
                         data_easy['meters_up'] += 1
                         meters_up += 1
-                        player1.img = pygame.image.load(os.path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
+                        player1.img = pygame.image.load(path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x -= 150
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                            json.dump(data_easy, save_data_easy)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                            dump(data_easy, save_data_easy)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 150
                         fireball1.y += 150
                         flap = False
                         flap2 = True
-        Cowboy_Hat = ui_button(player1.x, player1.y - 20, 40, 30, cowboy_hat_image)
-        Thinking_Hat = ui_button(player1.x, player1.y - 20, 40, 30, thinking_hat_image)
-        Top_Hat = ui_button(player1.x, player1.y - 20, 40, 30, top_hat_image)
-        Red_Cap = ui_button(player1.x, player1.y - 20, 40, 30, red_cap_image)
-        Party_Hat = ui_button(player1.x, player1.y - 20, 40, 30, party_hat_image)
-        Witch_Hat = ui_button(player1.x, player1.y - 20, 40, 30, witch_hat_image)
-        Mexican_Hat = ui_button(player1.x, player1.y - 20, 40, 30, mexican_hat_image)
-        King_Hat = ui_button(player1.x, player1.y - 20, 40, 30, king_hat_image)
+        Cowboy_Hat = button(player1.x, player1.y - 20, 40, 30, cowboy_hat_image)
+        Thinking_Hat = button(player1.x, player1.y - 20, 40, 30, thinking_hat_image)
+        Top_Hat = button(player1.x, player1.y - 20, 40, 30, top_hat_image)
+        Red_Cap = button(player1.x, player1.y - 20, 40, 30, red_cap_image)
+        Party_Hat = button(player1.x, player1.y - 20, 40, 30, party_hat_image)
+        Witch_Hat = button(player1.x, player1.y - 20, 40, 30, witch_hat_image)
+        Mexican_Hat = button(player1.x, player1.y - 20, 40, 30, mexican_hat_image)
+        King_Hat = button(player1.x, player1.y - 20, 40, 30, king_hat_image)
         fireball_rect = pygame.Rect(fireball1.x, fireball1.y, fireball1.width, fireball1.height)
         bird_rect = pygame.Rect(bird1.x, bird1.y, bird1.width, bird1.height)
         bird_rac_rect = pygame.Rect(bird_rac1.x, bird_rac1.y, bird_rac1.width, bird_rac1.height)
@@ -2099,26 +2219,28 @@ def main_easy():
         top_cactus_rect = pygame.Rect(640, cactusy - 2800, 100, 800)
 
         if player_rect.colliderect(fireball_rect):
-            with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-            with open(os.path.join('data','save_data_easy.json')) as save_data_easy:
-                    data_easy = json.load(save_data_easy)
+            with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+            with open(path.join('data','save_data_easy.json')) as save_data_easy:
+                    data_easy = load(save_data_easy)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
-            with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-            with open(os.path.join('data','save_data_easy.json')) as save_data_easy:
-                    data_easy = json.load(save_data_easy)
+            with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+            with open(path.join('data','save_data_easy.json')) as save_data_easy:
+                    data_easy = load(save_data_easy)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2131,13 +2253,13 @@ def main_easy():
                 data_shop['money'] += 1
                 data_easy['meters_up'] += 1
                 meters_up += 1
-                player1.img = pygame.image.load(os.path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
+                player1.img = pygame.image.load(path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x -= 150
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 150
@@ -2150,13 +2272,13 @@ def main_easy():
                 data_shop['money'] += 1
                 data_easy['meters_up'] += 1
                 meters_up += 1
-                player1.img = pygame.image.load(os.path.join('Images', 'player', 'player.png')).convert_alpha()
+                player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x += 150
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 150
@@ -2167,25 +2289,25 @@ def main_easy():
         fireball1.y += 10
         if fireball1.y >= screen_height:
             fireball1.y = -1000
-            fireball1.x = random.choice([585, 760])
+            fireball1.x = choice([585, 760])
             data_easy['fireballs_dodged'] += 1
-            with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
+            with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
             fireballs_dodged += 1
     
         bird1.x += 10
         if bird1.x >= screen_width:
             bird1.x = -1000
             data_easy['birds_dodged'] += 1
-            with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
+            with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
             birds_dodged += 1
         if bird1.y >= screen_height:
             bird1.x = -1000
-            bird1.y = random.randint(300, 800)
+            bird1.y = randint(300, 800)
             data_easy['birds_dodged'] += 1
-            with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
+            with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
             birds_dodged += 1
 
         dodge_text_red = pygame.font.SysFont('comicsans', 20).render("dodge!", 1, (255, 0, 0))
@@ -2196,6 +2318,7 @@ def main_easy():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2213,6 +2336,7 @@ def main_easy():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2238,20 +2362,21 @@ def main_easy():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
-            with open(os.path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    json.dump(data_easy, save_data_easy)
-            with open(os.path.join('data','save_data_easy.json')) as save_data_easy:
-                    data_easy = json.load(save_data_easy)
-            data_shop['money'] += 100
-            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-            if data_options['play_sfx'] == True:
+            with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+            with open(path.join('data','save_data_easy.json')) as save_data_easy:
+                    data_easy = load(save_data_easy)
+            data_shop['money'] += 50
+            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2358,7 +2483,7 @@ def main_normal():
     bird1 = bird(0, 600, 100, 100)
     fireball1 = fireball(760, player1.y - 1000, 25, 25)
     bird_rac1 = bird_rac(0, 300, 740, 100)
-    Money = ui_button(1030, 600, 250, 100, money_image)
+    Money = button(1030, 600, 250, 100, money_image)
     run = True
     bgy = 0
     cactusy = -500
@@ -2367,12 +2492,12 @@ def main_normal():
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 run = False
                 pygame.quit()
             if event.type == pygame.JOYAXISMOTION:
@@ -2382,13 +2507,13 @@ def main_normal():
                         data_shop['money'] += 1
                         data_normal['meters_up'] += 1
                         meters_up += 1
-                        player1.img = pygame.image.load(os.path.join('Images', 'player', 'player.png')).convert_alpha()
+                        player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x += 150
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                            json.dump(data_normal, save_data_normal)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                            dump(data_normal, save_data_normal)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 150
@@ -2400,27 +2525,27 @@ def main_normal():
                         data_shop['money'] += 1
                         data_normal['meters_up'] += 1
                         meters_up += 1
-                        player1.img = pygame.image.load(os.path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
+                        player1.img = pygame.image.load(path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x -= 150
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                            json.dump(data_normal, save_data_normal)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                            dump(data_normal, save_data_normal)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 150
                         fireball1.y += 150
                         flap = False
                         flap2 = True
-        Cowboy_Hat = ui_button(player1.x, player1.y - 20, 40, 30, cowboy_hat_image)
-        Thinking_Hat = ui_button(player1.x, player1.y - 20, 40, 30, thinking_hat_image)
-        Top_Hat = ui_button(player1.x, player1.y - 20, 40, 30, top_hat_image)
-        Red_Cap = ui_button(player1.x, player1.y - 20, 40, 30, red_cap_image)
-        Party_Hat = ui_button(player1.x, player1.y - 20, 40, 30, party_hat_image)
-        Witch_Hat = ui_button(player1.x, player1.y - 20, 40, 30, witch_hat_image)
-        Mexican_Hat = ui_button(player1.x, player1.y - 20, 40, 30, mexican_hat_image)
-        King_Hat = ui_button(player1.x, player1.y - 20, 40, 30, king_hat_image)
+        Cowboy_Hat = button(player1.x, player1.y - 20, 40, 30, cowboy_hat_image)
+        Thinking_Hat = button(player1.x, player1.y - 20, 40, 30, thinking_hat_image)
+        Top_Hat = button(player1.x, player1.y - 20, 40, 30, top_hat_image)
+        Red_Cap = button(player1.x, player1.y - 20, 40, 30, red_cap_image)
+        Party_Hat = button(player1.x, player1.y - 20, 40, 30, party_hat_image)
+        Witch_Hat = button(player1.x, player1.y - 20, 40, 30, witch_hat_image)
+        Mexican_Hat = button(player1.x, player1.y - 20, 40, 30, mexican_hat_image)
+        King_Hat = button(player1.x, player1.y - 20, 40, 30, king_hat_image)
         fireball_rect = pygame.Rect(fireball1.x, fireball1.y, fireball1.width, fireball1.height)
         bird_rect = pygame.Rect(bird1.x, bird1.y, bird1.width, bird1.height)
         bird_rac_rect = pygame.Rect(bird_rac1.x, bird_rac1.y, bird_rac1.width, bird_rac1.height)
@@ -2428,26 +2553,28 @@ def main_normal():
         top_cactus_rect = pygame.Rect(640, cactusy - 5800, 100, 800)
 
         if player_rect.colliderect(fireball_rect):
-            with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-            with open(os.path.join('data','save_data_normal.json')) as save_data_normal:
-                    data_normal = json.load(save_data_normal)
+            with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+            with open(path.join('data','save_data_normal.json')) as save_data_normal:
+                    data_normal = load(save_data_normal)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
-            with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-            with open(os.path.join('data','save_data_normal.json')) as save_data_normal:
-                    data_normal = json.load(save_data_normal)
+            with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+            with open(path.join('data','save_data_normal.json')) as save_data_normal:
+                    data_normal = load(save_data_normal)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2460,13 +2587,13 @@ def main_normal():
                 data_shop['money'] += 1
                 data_normal['meters_up'] += 1
                 meters_up += 1
-                player1.img = pygame.image.load(os.path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
+                player1.img = pygame.image.load(path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x -= 150
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 150
@@ -2479,13 +2606,13 @@ def main_normal():
                 data_shop['money'] += 1
                 data_normal['meters_up'] += 1
                 meters_up += 1
-                player1.img = pygame.image.load(os.path.join('Images', 'player', 'player.png')).convert_alpha()
+                player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x += 150
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 150
@@ -2496,25 +2623,25 @@ def main_normal():
         fireball1.y += 10
         if fireball1.y >= screen_height:
             fireball1.y = 0
-            fireball1.x = random.choice([585, 760])
+            fireball1.x = choice([585, 760])
             data_normal['fireballs_dodged'] += 1
-            with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
+            with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
             fireballs_dodged += 1
     
         bird1.x += 10
         if bird1.x >= screen_width:
             bird1.x = -1000
             data_normal['birds_dodged'] += 1
-            with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
+            with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
             birds_dodged += 1
         if bird1.y >= screen_height:
             bird1.x = -1000
-            bird1.y = random.randint(300, 800)
+            bird1.y = randint(300, 800)
             data_normal['birds_dodged'] += 1
-            with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
+            with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
             birds_dodged += 1
 
         dodge_text_red = pygame.font.SysFont('comicsans', 20).render("dodge!", 1, (255, 0, 0))
@@ -2524,6 +2651,7 @@ def main_normal():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2541,6 +2669,7 @@ def main_normal():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2566,20 +2695,21 @@ def main_normal():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
-            with open(os.path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
-                    json.dump(data_normal, save_data_normal)
-            with open(os.path.join('data','save_data_normal.json')) as save_data_normal:
-                    data_normal = json.load(save_data_normal)
+            with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+            with open(path.join('data','save_data_normal.json')) as save_data_normal:
+                    data_normal = load(save_data_normal)
             data_shop['money'] += 100
-            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-            if data_options['play_sfx'] == True:
+            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2689,7 +2819,7 @@ def main_hard():
     bird1 = bird(0, 600, 100, 100)
     fireball1 = fireball(760, player1.y - 1000, 25, 25)
     bird_rac1 = bird_rac(0, 300, 740, 100)
-    Money = ui_button(1030, 600, 250, 100, money_image)
+    Money = button(1030, 600, 250, 100, money_image)
     run = True
     bgy = 0
     cactusy = -500
@@ -2698,12 +2828,12 @@ def main_hard():
         clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_options.json'),'w') as save_data_options:
-                    json.dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 run = False
                 pygame.quit()
             if event.type == pygame.JOYAXISMOTION:
@@ -2713,13 +2843,13 @@ def main_hard():
                         data_shop['money'] += 1
                         data_hard['meters_up'] += 1
                         meters_up += 1
-                        player1.img = pygame.image.load(os.path.join('Images', 'player', 'player.png')).convert_alpha()
+                        player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x += 150
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                            json.dump(data_hard, save_data_hard)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                            dump(data_hard, save_data_hard)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 50
@@ -2731,27 +2861,27 @@ def main_hard():
                         data_shop['money'] += 1
                         data_hard['meters_up'] += 1
                         meters_up += 1
-                        player1.img = pygame.image.load(os.path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
+                        player1.img = pygame.image.load(path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x -= 150
-                        with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                            json.dump(data_shop, save_data_shop)
-                        with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                            json.dump(data_hard, save_data_hard)
+                        with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                            dump(data_shop, save_data_shop)
+                        with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                            dump(data_hard, save_data_hard)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 50
                         fireball1.y += 50
                         flap = False
                         flap2 = True
-        Cowboy_Hat = ui_button(player1.x, player1.y - 20, 40, 30, cowboy_hat_image)
-        Thinking_Hat = ui_button(player1.x, player1.y - 20, 40, 30, thinking_hat_image)
-        Top_Hat = ui_button(player1.x, player1.y - 20, 40, 30, top_hat_image)
-        Red_Cap = ui_button(player1.x, player1.y - 20, 40, 30, red_cap_image)
-        Party_Hat = ui_button(player1.x, player1.y - 20, 40, 30, party_hat_image)
-        Witch_Hat = ui_button(player1.x, player1.y - 20, 40, 30, witch_hat_image)
-        Mexican_Hat = ui_button(player1.x, player1.y - 20, 40, 30, mexican_hat_image)
-        King_Hat = ui_button(player1.x, player1.y - 20, 40, 30, king_hat_image)
+        Cowboy_Hat = button(player1.x, player1.y - 20, 40, 30, cowboy_hat_image)
+        Thinking_Hat = button(player1.x, player1.y - 20, 40, 30, thinking_hat_image)
+        Top_Hat = button(player1.x, player1.y - 20, 40, 30, top_hat_image)
+        Red_Cap = button(player1.x, player1.y - 20, 40, 30, red_cap_image)
+        Party_Hat = button(player1.x, player1.y - 20, 40, 30, party_hat_image)
+        Witch_Hat = button(player1.x, player1.y - 20, 40, 30, witch_hat_image)
+        Mexican_Hat = button(player1.x, player1.y - 20, 40, 30, mexican_hat_image)
+        King_Hat = button(player1.x, player1.y - 20, 40, 30, king_hat_image)
         fireball_rect = pygame.Rect(fireball1.x, fireball1.y, fireball1.width, fireball1.height)
         bird_rect = pygame.Rect(bird1.x, bird1.y, bird1.width, bird1.height)
         bird_rac_rect = pygame.Rect(bird_rac1.x, bird_rac1.y, bird_rac1.width, bird_rac1.height)
@@ -2759,26 +2889,28 @@ def main_hard():
         top_cactus_rect = pygame.Rect(640, cactusy - 10800, 100, 800)
 
         if player_rect.colliderect(fireball_rect):
-            with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-            with open(os.path.join('data','save_data_hard.json')) as save_data_hard:
-                    data_hard = json.load(save_data_hard)
+            with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+            with open(path.join('data','save_data_hard.json')) as save_data_hard:
+                    data_hard = load(save_data_hard)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
-            with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-            with open(os.path.join('data','save_data_hard.json')) as save_data_hard:
-                    data_hard = json.load(save_data_hard)
+            with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+            with open(path.join('data','save_data_hard.json')) as save_data_hard:
+                    data_hard = load(save_data_hard)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2791,13 +2923,13 @@ def main_hard():
                 data_shop['money'] += 1
                 data_hard['meters_up'] += 1
                 meters_up += 1
-                player1.img = pygame.image.load(os.path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
+                player1.img = pygame.image.load(path.join('Images', 'player', 'flippedplayer.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x -= 150
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 50
@@ -2810,13 +2942,13 @@ def main_hard():
                 data_shop['money'] += 1
                 data_hard['meters_up'] += 1
                 meters_up += 1
-                player1.img = pygame.image.load(os.path.join('Images', 'player', 'player.png')).convert_alpha()
+                player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x += 150
-                with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-                with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 50
@@ -2827,25 +2959,25 @@ def main_hard():
         fireball1.y += 25
         if fireball1.y >= screen_height:
             fireball1.y = 0
-            fireball1.x = random.choice([585, 760])
+            fireball1.x = choice([585, 760])
             data_hard['fireballs_dodged'] += 1
-            with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
+            with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
             fireballs_dodged += 1
     
         bird1.x += 25
         if bird1.x >= screen_width:
             bird1.x = -100
             data_hard['birds_dodged'] += 1
-            with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
+            with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
             birds_dodged += 1
         if bird1.y >= screen_height:
             bird1.x = -100
-            bird1.y = random.randint(300, 800)
+            bird1.y = randint(300, 800)
             data_hard['birds_dodged'] += 1
-            with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
+            with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
             birds_dodged += 1
 
         dodge_text_red = pygame.font.SysFont('comicsans', 20).render("dodge!", 1, (255, 0, 0))
@@ -2855,6 +2987,7 @@ def main_hard():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2872,6 +3005,7 @@ def main_hard():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
@@ -2897,20 +3031,21 @@ def main_hard():
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
-            with open(os.path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    json.dump(data_hard, save_data_hard)
-            with open(os.path.join('data','save_data_hard.json')) as save_data_hard:
-                    data_hard = json.load(save_data_hard)
-            data_shop['money'] += 100
-            with open(os.path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    json.dump(data_shop, save_data_shop)
-            if data_options['play_sfx'] == True:
+            with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+            with open(path.join('data','save_data_hard.json')) as save_data_hard:
+                    data_hard = load(save_data_hard)
+            data_shop['money'] += 200
+            with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+            if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
