@@ -51,6 +51,10 @@ def load_assets():
         'ui/checked_off.png', 'ui/checked.png', 'ui/credits.png', 'ui/music.png', 'ui/no.png',
         'ui/options.png', 'ui/quit.png', 'ui/reset.png', 'ui/select_box.png', 'ui/sfx.png',
         'ui/shop.png', 'ui/TextBox.png', 'ui/yes.png', 'bg.png', 'ui/controller_vibration.png',
+        'ui/achievements.png', 'achievements/climb_the_top.png', 'achievements/first_steps.png',
+        'achievements/cactus_climber.png', 'achievements/catch_on_fire.png', 'achievements/climb.png',
+        'achievements/dont_catch_on_fire.png', 'achievements/dont_get_hit.png', 'achievements/expert.png',
+        'achievements/get_hit.png', 'achievements/the_true_cactus_climber.png', 'achievements/hat_collector.png',
         # Sounds
         'Music/maintheme.mp3', 'Music/dodge!.mp3', 'Music/Sounds/fire.mp3', 'Music/Sounds/bird.mp3',
         'Music/Sounds/buy.mp3', 'Music/Sounds/denied.mp3', 'Music/Sounds/equipped.mp3'
@@ -115,6 +119,20 @@ sfx_image = pygame.image.load(path.join('Images', 'ui', 'sfx.png')).convert()
 controller_vibration_image = pygame.image.load(path.join('Images', 'ui', 'controller_vibration.png')).convert()
 shop_image = pygame.image.load(path.join('Images', 'ui', 'shop.png')).convert()
 reset_image = pygame.image.load(path.join('Images', 'ui', 'reset.png')).convert()
+achievements_image = pygame.image.load(path.join('Images', 'ui', 'achievements.png')).convert()
+
+#achievement images
+first_steps_image = pygame.image.load(path.join('Images', 'achievements', 'first_steps.png')).convert()
+climb_the_top_image = pygame.image.load(path.join('Images', 'achievements', 'climb_the_top.png')).convert()
+cactus_climber_image = pygame.image.load(path.join('Images', 'achievements', 'cactus_climber.png')).convert()
+catch_on_fire_image = pygame.image.load(path.join('Images', 'achievements', 'catch_on_fire.png')).convert()
+climb_image = pygame.image.load(path.join('Images', 'achievements', 'climb.png')).convert()
+dont_catch_on_fire_image = pygame.image.load(path.join('Images', 'achievements', 'dont_catch_on_fire.png')).convert()
+dont_get_hit_image = pygame.image.load(path.join('Images', 'achievements', 'dont_get_hit.png')).convert()
+expert_image = pygame.image.load(path.join('Images', 'achievements', 'expert.png')).convert()
+get_hit_image = pygame.image.load(path.join('Images', 'achievements', 'get_hit.png')).convert()
+the_true_cactus_climber_image = pygame.image.load(path.join('Images', 'achievements', 'the_true_cactus_climber.png')).convert()
+hat_collector_image = pygame.image.load(path.join('Images', 'achievements', 'hat_collector.png')).convert()
 
 select_box_image = pygame.image.load(path.join('Images', 'ui', 'select_box.png')).convert_alpha()
 
@@ -213,7 +231,32 @@ data_options = {
     'controller_vibration': True,
     'show_easy': False,
     'show_normal': False,
-    'show_hard': False
+    'show_hard': False,
+}
+data_achievements = {
+    'first_steps': False,
+    'climb_the_top': False,
+    'cactus_climber': False,
+    'catch_on_fire': False,
+    'climb': False,
+    'dont_catch_on_fire': False,
+    'dont_get_hit': False,
+    'expert': False,
+    'get_hit': False,
+    'the_true_cactus_climber': False,
+    'hat_collector': False,
+    'achievements_complete': 0,
+    'achievement_1': True,
+    'achievement_2': True,
+    'achievement_3': True,
+    'achievement_4': True,
+    'achievement_5': True,
+    'achievement_6': True,
+    'achievement_7': True,
+    'achievement_8': True,
+    'achievement_9': True,
+    'achievement_10': True,
+    'achievement_11': True
 }
 #loading data
 try:
@@ -227,6 +270,8 @@ try:
         data_shop = load(save_data_shop)
     with open(path.join('data','save_data_options.json')) as save_data_options:
         data_options = load(save_data_options)
+    with open(path.join('data','save_data_achievements.json')) as save_data_achievements:
+        data_achievements = load(save_data_achievements)
 except:
     print("")
 
@@ -292,6 +337,8 @@ def win():
                     dump(data_hard, save_data_hard)
                 with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
             
@@ -342,6 +389,8 @@ def credits():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYBUTTONDOWN:
@@ -494,6 +543,8 @@ def shop():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
             current_time = pygame.time.get_ticks()
@@ -1292,6 +1343,8 @@ def options():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
             current_time = pygame.time.get_ticks()
@@ -1466,13 +1519,14 @@ def options():
             window.blit(Select_Box.image, (Select_Box.x, Select_Box.y))
         pygame.display.update()
 def start():
-    global show_textbox, show_start, data_easy, data_normal, data_hard, data_options, data_shop
+    global show_textbox, show_start, data_easy, data_normal, data_hard, data_options, data_shop, data_achievements
     Play = button(500, 150, 250, 100, play_image)
     Options = button(500, 260, 250, 100, options_image)
     Shop = button(500, 370, 250, 100, shop_image)
     Credits = button(500, 480, 250, 100, credits_image)
     Quit = button(500, 600, 250, 100, quit_image)
     Reset = button(1030, 0, 250, 100, reset_image)
+    Achievements = button(0, 50, 250, 100, achievements_image)
     Yes = button(450, 500, 150, 100, yes_image)
     No = button(700, 500, 150, 100, no_image)
     TextBox = button(450, 200, 400, 400, textbox_image)
@@ -1493,6 +1547,8 @@ def start():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYBUTTONDOWN:
@@ -1546,6 +1602,30 @@ def start():
                         data_hard['birds_dodged'] = 0
                         data_hard['fireballs_dodged'] = 0
                         data_hard['meters_up'] = 0
+                        data_achievements['cactus_climber'] = False
+                        data_achievements['catch_on_fire'] = False
+                        data_achievements['climb_the_top'] = False
+                        data_achievements['climb'] = False
+                        data_achievements['dont_catch_on_fire'] = False
+                        data_achievements['dont_get_hit'] = False
+                        data_achievements['expert'] = False
+                        data_achievements['first_steps'] = False
+                        data_achievements['get_hit'] = False
+                        data_achievements['hat_collector'] = False
+                        data_achievements['the_true_cactus_climber'] = False
+                        data_achievements['achievements_complete'] = 0
+                        data_achievements['achievement_1'] = True
+                        data_achievements['achievement_2'] = True
+                        data_achievements['achievement_3'] = True
+                        data_achievements['achievement_4'] = True
+                        data_achievements['achievement_5'] = True
+                        data_achievements['achievement_6'] = True
+                        data_achievements['achievement_7'] = True
+                        data_achievements['achievement_8'] = True
+                        data_achievements['achievement_9'] = True
+                        data_achievements['achievement_10'] = True
+                        data_achievements['achievement_11'] = True
+
                         with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
                             dump(data_easy, save_data_easy)
                         with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
@@ -1556,11 +1636,15 @@ def start():
                             dump(data_shop, save_data_shop)
                         with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
+                        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                            dump(data_achievements, save_data_achievements)
                         show_start = True
                         start()
                 if show_start == True:
                     if pygame.joystick.Joystick(0).get_button(0):
                         mainmenu()
+                    if pygame.joystick.Joystick(0).get_button(6):
+                        achievements()
                     if pygame.joystick.Joystick(0).get_button(2):
                         shop()
                     if pygame.joystick.Joystick(0).get_button(3):
@@ -1583,6 +1667,7 @@ def start():
                 credits_rect = pygame.Rect(Credits.x, Credits.y, Credits.width, Credits.height)
                 quit_rect = pygame.Rect(Quit.x, Quit.y, Quit.width, Quit.height)
                 reset_rect = pygame.Rect(Reset.x, Reset.y, Reset.width, Reset.height)
+                achievements_rect = pygame.Rect(Achievements.x, Achievements.y, Achievements.width, Achievements.height)
                 yes_rect = pygame.Rect(Yes.x, Yes.y, Yes.width, Yes.height)
                 no_rect = pygame.Rect(No.x, No.y, No.width, No.height)
                 if show_start == True:
@@ -1595,6 +1680,8 @@ def start():
                         options()
                     if shop_rect.collidepoint(mousex, mousey):
                         shop()
+                    if achievements_rect.collidepoint(mousex, mousey):
+                        achievements()
                     if credits_rect.collidepoint(mousex, mousey):
                         credits()
                 if show_textbox == True:
@@ -1647,6 +1734,29 @@ def start():
                         data_hard['birds_dodged'] = 0
                         data_hard['fireballs_dodged'] = 0
                         data_hard['meters_up'] = 0
+                        data_achievements['cactus_climber'] = False
+                        data_achievements['catch_on_fire'] = False
+                        data_achievements['climb_the_top'] = False
+                        data_achievements['climb'] = False
+                        data_achievements['dont_catch_on_fire'] = False
+                        data_achievements['dont_get_hit'] = False
+                        data_achievements['expert'] = False
+                        data_achievements['first_steps'] = False
+                        data_achievements['get_hit'] = False
+                        data_achievements['hat_collector'] = False
+                        data_achievements['the_true_cactus_climber'] = False
+                        data_achievements['achievements_complete'] = 0
+                        data_achievements['achievement_1'] = True
+                        data_achievements['achievement_2'] = True
+                        data_achievements['achievement_3'] = True
+                        data_achievements['achievement_4'] = True
+                        data_achievements['achievement_5'] = True
+                        data_achievements['achievement_6'] = True
+                        data_achievements['achievement_7'] = True
+                        data_achievements['achievement_8'] = True
+                        data_achievements['achievement_9'] = True
+                        data_achievements['achievement_10'] = True
+                        data_achievements['achievement_11'] = True
                         with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
                             dump(data_easy, save_data_easy)
                         with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
@@ -1657,6 +1767,8 @@ def start():
                             dump(data_shop, save_data_shop)
                         with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
+                        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                            dump(data_achievements, save_data_achievements)
                         show_start = True
                         start()
                 if reset_rect.collidepoint(mousex, mousey):
@@ -1664,7 +1776,7 @@ def start():
                     show_start = False
         #text5
         title_text = pygame.font.SysFont('comicsans', 90).render("Cactus Climber", 1, (64, 255, 25)) 
-        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.7", 1, (64, 255, 25))
+        version_text = pygame.font.SysFont('comicsans', 40).render("v1.3", 1, (64, 255, 25))
         window.fill((204, 102, 25))
         window.blit(Play.image, (Play.x, Play.y))
         window.blit(Options.image, (Options.x, Options.y))
@@ -1672,6 +1784,7 @@ def start():
         window.blit(Credits.image, (Credits.x, Credits.y))
         window.blit(Quit.image, (Quit.x, Quit.y))
         window.blit(Reset.image, (Reset.x, Reset.y))
+        window.blit(Achievements.image, (Achievements.x, Achievements.y))
         window.blit(title_text, (350, 0))
         window.blit(version_text, (0, 0))
         if show_textbox == True:
@@ -1679,7 +1792,203 @@ def start():
             window.blit(No.image, (No.x, No.y))
             window.blit(Yes.image, (Yes.x, Yes.y))
         pygame.display.update()
+def achievements():
+    global data_achievements, data_easy, data_hard, data_normal, data_shop
+    Back = button(0, 670, 100, 50, back_image)
+    First_Steps = button(10, 100, 250, 100, first_steps_image)
+    Checked_off = button(280, 100, 100, 100, checked_off_image)
+    Checked = button(10760, 100, 100, 100, checked_image)
+    Climb_The_Top = button(460, 100, 250, 100, climb_the_top_image)
+    Checked_off1 = button(730, 100, 100, 100, checked_off_image)
+    Checked1 = button(10760, 100, 100, 100, checked_image)
+    Cactus_Climber = button(10, 400, 250, 100, cactus_climber_image)
+    Checked_off2 = button(280, 400, 100, 100, checked_off_image)
+    Checked2 = button(10760, 400, 100, 100, checked_image)
+    Catch_On_Fire = button(910, 250, 250, 100, catch_on_fire_image)
+    Checked_off3 = button(1180, 250, 100, 100, checked_off_image)
+    Checked3 = button(10760, 250, 100, 100, checked_image)
+    Climb = button(10, 250, 250, 100, climb_image)
+    Checked_off4 = button(280, 250, 100, 100, checked_off_image)
+    Checked4 = button(10760, 250, 100, 100, checked_image)
+    Dont_Catch_On_Fire = button(910, 550, 250, 100, dont_catch_on_fire_image)
+    Checked_off5 = button(1180, 550, 100, 100, checked_off_image)
+    Checked5 = button(10760, 550, 100, 100, checked_image)
+    Dont_Get_Hit = button(460, 550, 250, 100, dont_get_hit_image)
+    Checked_off6 = button(730, 550, 100, 100, checked_off_image)
+    Checked6 = button(10760, 550, 100, 100, checked_image)
+    Expert = button(460, 250, 250, 100, expert_image)
+    Checked_off7 = button(730, 250, 100, 100, checked_off_image)
+    Checked7 = button(10760, 250, 100, 100, checked_image)
+    Get_Hit = button(910, 400, 250, 100, get_hit_image)
+    Checked_off8 = button(1180, 400, 100, 100, checked_off_image)
+    Checked8 = button(10760, 400, 100, 100, checked_image)
+    Hat_Collector = button(910, 100, 250, 100, hat_collector_image)
+    Checked_off9 = button(1180, 100, 100, 100, checked_off_image)
+    Checked9 = button(10760, 100, 100, 100, checked_image)
+    The_True_Cactus_Climber = button(460, 400, 250, 100, the_true_cactus_climber_image)
+    Checked_off10 = button(730, 400, 100, 100, checked_off_image)
+    Checked10 = button(10760, 400, 100, 100, checked_image)
+    if data_easy['meters_up'] + data_normal['meters_up'] + data_hard['meters_up'] >= 500:
+        data_achievements['climb'] = True
+        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+            dump(data_achievements, save_data_achievements)
+    if data_easy['meters_up'] + data_normal['meters_up'] + data_hard['meters_up'] >= 1000:
+        data_achievements['cactus_climber'] = True
+        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+            dump(data_achievements, save_data_achievements)
+    if data_easy['meters_up'] + data_normal['meters_up'] + data_hard['meters_up'] >= 10000:
+        data_achievements['the_true_cactus_climber'] = True
+        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+            dump(data_achievements, save_data_achievements)
+    if data_easy['fireballs_dodged'] + data_normal['fireballs_dodged'] + data_hard['fireballs_dodged'] >= 500:
+        data_achievements['dont_catch_on_fire'] = True
+        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+            dump(data_achievements, save_data_achievements)
+    if data_easy['birds_dodged'] + data_normal['birds_dodged'] + data_hard['birds_dodged'] >= 500:
+        data_achievements['dont_get_hit'] = True
+        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+            dump(data_achievements, save_data_achievements)
+    if data_shop['red_cap_unlocked'] == True and data_shop['thinking_hat_unlocked'] == True and data_shop['top_hat_unlocked'] == True and data_shop['cowboy_hat_unlocked'] == True and data_shop['party_hat_unlocked'] == True and data_shop['witch_hat_unlocked'] == True and data_shop['mexican_hat_unlocked'] == True and data_shop['king_hat_unlocked'] == True:
+        data_achievements['hat_collector'] = True
+        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+            dump(data_achievements, save_data_achievements)
 
+    if data_achievements['first_steps'] == True:
+        if data_achievements['achievement_1'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off.x = 10760
+        Checked.x = 280
+        data_achievements['achievement_1'] = False
+    if data_achievements['climb_the_top'] == True:
+        if data_achievements['achievement_2'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off1.x = 10760
+        Checked1.x = 730
+        data_achievements['achievement_2'] = False
+    if data_achievements['cactus_climber'] == True:
+        if data_achievements['achievement_3'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off2.x = 10760
+        Checked2.x = 280
+        data_achievements['achievement_3'] = False
+    if data_achievements['catch_on_fire'] == True:
+        if data_achievements['achievement_4'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off3.x = 10760
+        Checked3.x = 1180
+        data_achievements['achievement_4'] = False
+    if data_achievements['climb'] == True:
+        if data_achievements['achievement_5'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off4.x = 10760
+        Checked4.x = 280
+        data_achievements['achievement_5'] = False
+    if data_achievements['dont_catch_on_fire'] == True:
+        if data_achievements['achievement_6'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off5.x = 10760
+        Checked5.x = 1180
+        data_achievements['achievement_6'] = False
+    if data_achievements['dont_get_hit'] == True:
+        if data_achievements['achievement_7'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off6.x = 10760
+        Checked6.x = 730
+        data_achievements['achievement_7'] = False
+    if data_achievements['expert'] == True:
+        if data_achievements['achievement_8'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off7.x = 10760
+        Checked7.x = 730
+        data_achievements['achievement_8'] = False
+    if data_achievements['get_hit'] == True:
+        if data_achievements['achievement_9'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off8.x = 10760
+        Checked8.x = 1180
+        data_achievements['achievement_9'] = False
+    if data_achievements['hat_collector'] == True:
+        if data_achievements['achievement_10'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off9.x = 10760
+        Checked9.x = 1180
+        data_achievements['achievement_10'] = False
+    if data_achievements['the_true_cactus_climber'] == True:
+        if data_achievements['achievement_11'] == True:
+            data_achievements['achievements_complete'] += 1
+        Checked_off10.x = 10760
+        Checked10.x = 730
+        data_achievements['achievement_11'] = False
+    with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+        dump(data_achievements, save_data_achievements)
+    run = True
+    clockyy = pygame.time.Clock()
+    while run:  
+        clockyy.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
+                    dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
+                    dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
+                    dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
+                    dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
+                pygame.quit()
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mousex, mousey = pygame.mouse.get_pos()
+                back_rect = pygame.Rect(Back.x, Back.y, Back.width, Back.height)
+                if back_rect.collidepoint(mousex, mousey):
+                    start()
+        title_text = pygame.font.SysFont('comicsans', 70).render("ACHIEVEMENTS", 1, (255, 0, 0))
+        achievements_complete_text = pygame.font.SysFont('comicsans', 35).render(str(data_achievements['achievements_complete']) + "/11 Complete", 1, (255, 255, 255))
+        window.fill((204, 102, 25))
+        window.blit(Back.image, (Back.x, Back.y))
+        window.blit(First_Steps.image, (First_Steps.x, First_Steps.y))
+        window.blit(Back.image, (Back.x, Back.y))
+        window.blit(Checked.image, (Checked.x, Checked.y))
+        window.blit(Checked_off.image, (Checked_off.x, Checked_off.y))
+        window.blit(Climb_The_Top.image, (Climb_The_Top.x, Climb_The_Top.y))
+        window.blit(Checked1.image, (Checked1.x, Checked1.y))
+        window.blit(Checked_off1.image, (Checked_off1.x, Checked_off1.y))
+        window.blit(Cactus_Climber.image, (Cactus_Climber.x, Cactus_Climber.y))
+        window.blit(Checked2.image, (Checked2.x, Checked2.y))
+        window.blit(Checked_off2.image, (Checked_off2.x, Checked_off2.y))
+        window.blit(Catch_On_Fire.image, (Catch_On_Fire.x, Catch_On_Fire.y))
+        window.blit(Checked3.image, (Checked3.x, Checked3.y))
+        window.blit(Checked_off3.image, (Checked_off3.x, Checked_off3.y))
+        window.blit(Climb.image, (Climb.x, Climb.y))
+        window.blit(Checked4.image, (Checked4.x, Checked4.y))
+        window.blit(Checked_off4.image, (Checked_off4.x, Checked_off4.y))
+        window.blit(Dont_Catch_On_Fire.image, (Dont_Catch_On_Fire.x, Dont_Catch_On_Fire.y))
+        window.blit(Checked5.image, (Checked5.x, Checked5.y))
+        window.blit(Checked_off5.image, (Checked_off5.x, Checked_off5.y))
+        window.blit(Dont_Get_Hit.image, (Dont_Get_Hit.x, Dont_Get_Hit.y))
+        window.blit(Checked6.image, (Checked6.x, Checked6.y))
+        window.blit(Checked_off6.image, (Checked_off6.x, Checked_off6.y))
+        window.blit(Expert.image, (Expert.x, Expert.y))
+        window.blit(Checked7.image, (Checked7.x, Checked7.y))
+        window.blit(Checked_off7.image, (Checked_off7.x, Checked_off7.y))
+        window.blit(Get_Hit.image, (Get_Hit.x, Get_Hit.y))
+        window.blit(Checked8.image, (Checked8.x, Checked8.y))
+        window.blit(Checked_off8.image, (Checked_off8.x, Checked_off8.y))
+        window.blit(Hat_Collector.image, (Hat_Collector.x, Hat_Collector.y))
+        window.blit(Checked9.image, (Checked9.x, Checked9.y))
+        window.blit(Checked_off9.image, (Checked_off9.x, Checked_off9.y))
+        window.blit(The_True_Cactus_Climber.image, (The_True_Cactus_Climber.x, The_True_Cactus_Climber.y))
+        window.blit(Checked10.image, (Checked10.x, Checked10.y))
+        window.blit(Checked_off10.image, (Checked_off10.x, Checked_off10.y))
+        window.blit(title_text, (370, 0))
+        window.blit(achievements_complete_text, (0, 600))
+        
+        pygame.display.update()
+    
 def mainmenu():
     global diff, data_options
     Money = button(1030, 0, 250, 100, money_image)
@@ -1725,6 +2034,8 @@ def mainmenu():
                     dump(data_options, save_data_options)
                 with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     dump(data_shop, save_data_shop)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYBUTTONDOWN:
@@ -1861,7 +2172,7 @@ def mainmenu():
         total_birds_dodged_easy_text = pygame.font.SysFont('comicsans', 20).render(f"Total Birds Dodged: {data_easy['birds_dodged']}", 1, (255, 255, 255))
 
         title_text = pygame.font.SysFont('comicsans', 140).render("Cactus Climber", 1, (64, 255, 25)) 
-        version_text = pygame.font.SysFont('comicsans', 40).render("v1.2.7", 1, (64, 255, 25))
+        version_text = pygame.font.SysFont('comicsans', 40).render("v1.3", 1, (64, 255, 25))
         money_text = pygame.font.SysFont('comicsans', 80).render(f"{data_shop['money']} : ", 1, (64, 255, 25))
 
         window.fill((204, 102, 25))
@@ -1924,6 +2235,8 @@ def mainspot():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
             if event.type == pygame.JOYAXISMOTION:
@@ -1988,6 +2301,8 @@ def endvideo():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
         
@@ -2016,6 +2331,8 @@ def firstvideo_easy():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
                 
@@ -2043,6 +2360,8 @@ def firstvideo_normal():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
                 
@@ -2070,6 +2389,8 @@ def firstvideo_hard():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
                 
@@ -2097,6 +2418,8 @@ def fireballdeathvid():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
                 
@@ -2125,6 +2448,8 @@ def birddeathvid():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 pygame.quit()
                 run = False
                 
@@ -2136,7 +2461,7 @@ def birddeathvid():
         mainmenu()
 
 def main_easy():
-    global data_easy, data_options, data_shop
+    global data_easy, data_options, data_shop, data_achievements
     if data_options['play_music'] == True:
         maintheme.play(-1)
     fireballs_dodged = 0
@@ -2164,6 +2489,8 @@ def main_easy():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 run = False
                 pygame.quit()
             if event.type == pygame.JOYAXISMOTION:
@@ -2176,10 +2503,16 @@ def main_easy():
                         player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x += 150
+                        if data_achievements['first_steps'] == False:
+                            data_achievements['first_steps'] = True
+                        with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                            dump(data_options, save_data_options)
                         with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
                         with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
                             dump(data_easy, save_data_easy)
+                        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                            dump(data_achievements, save_data_achievements)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 150
@@ -2219,10 +2552,14 @@ def main_easy():
         top_cactus_rect = pygame.Rect(640, cactusy - 2800, 100, 800)
 
         if player_rect.colliderect(fireball_rect):
+            if data_achievements['catch_on_fire'] == False:
+                data_achievements['catch_on_fire'] = True
             with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    dump(data_easy, save_data_easy)
+                dump(data_easy, save_data_easy)
             with open(path.join('data','save_data_easy.json')) as save_data_easy:
-                    data_easy = load(save_data_easy)
+                data_easy = load(save_data_easy)
+            with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                dump(data_achievements, save_data_achievements)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
@@ -2233,10 +2570,14 @@ def main_easy():
                     print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
+            if data_achievements['get_hit'] == False:
+                data_achievements['get_hit'] = True
             with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    dump(data_easy, save_data_easy)
+                dump(data_easy, save_data_easy)
             with open(path.join('data','save_data_easy.json')) as save_data_easy:
-                    data_easy = load(save_data_easy)
+                data_easy = load(save_data_easy)
+            with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                dump(data_achievements, save_data_achievements)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
@@ -2275,10 +2616,16 @@ def main_easy():
                 player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x += 150
+                if data_achievements['first_steps'] == False:
+                    data_achievements['first_steps'] = True
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
                     dump(data_easy, save_data_easy)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 150
@@ -2369,13 +2716,19 @@ def main_easy():
                     print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
+            if data_achievements['climb_the_top'] == False:
+                data_achievements['climb_the_top'] = True
+            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                dump(data_options, save_data_options)
             with open(path.join('data', 'save_data_easy.json'),'w') as save_data_easy:
-                    dump(data_easy, save_data_easy)
+                dump(data_easy, save_data_easy)
             with open(path.join('data','save_data_easy.json')) as save_data_easy:
-                    data_easy = load(save_data_easy)
+                data_easy = load(save_data_easy)
+            with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                dump(data_achievements, save_data_achievements)
             data_shop['money'] += 50
             with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
-                    dump(data_shop, save_data_shop)
+                dump(data_shop, save_data_shop)
             if data_options['controller_vibration'] == True:
                 try:
                     pygame.joystick.Joystick(0).rumble(5.0, 10.0, 30)
@@ -2471,7 +2824,7 @@ def main_easy():
         pygame.display.update()
 
 def main_normal():
-    global data_normal, data_options, data_shop
+    global data_normal, data_options, data_shop, data_achievements
     if data_options['play_music'] == True:
         maintheme.play(-1)
     fireballs_dodged = 0
@@ -2498,12 +2851,16 @@ def main_normal():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 run = False
                 pygame.quit()
             if event.type == pygame.JOYAXISMOTION:
                 io = round(pygame.joystick.Joystick(0).get_axis(0))
                 if io == 1: #right 
                     if flap2 == True:
+                        if data_achievements['first_steps'] == False:
+                            data_achievements['first_steps'] = True
                         data_shop['money'] += 1
                         data_normal['meters_up'] += 1
                         meters_up += 1
@@ -2514,6 +2871,8 @@ def main_normal():
                             dump(data_shop, save_data_shop)
                         with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
                             dump(data_normal, save_data_normal)
+                        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                            dump(data_achievements, save_data_achievements)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 150
@@ -2553,10 +2912,14 @@ def main_normal():
         top_cactus_rect = pygame.Rect(640, cactusy - 5800, 100, 800)
 
         if player_rect.colliderect(fireball_rect):
+            if data_achievements['catch_on_fire'] == False:
+                data_achievements['catch_on_fire'] = True
             with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
                     dump(data_normal, save_data_normal)
             with open(path.join('data','save_data_normal.json')) as save_data_normal:
                     data_normal = load(save_data_normal)
+            with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
@@ -2567,10 +2930,14 @@ def main_normal():
                     print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
+            if data_achievements['get_hit'] == False:
+                data_achievements['get_hit'] = True
             with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
                     dump(data_normal, save_data_normal)
             with open(path.join('data','save_data_normal.json')) as save_data_normal:
                     data_normal = load(save_data_normal)
+            with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
@@ -2609,10 +2976,16 @@ def main_normal():
                 player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x += 150
+                if data_achievements['first_steps'] == False:
+                    data_achievements['first_steps'] = True
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
                     dump(data_normal, save_data_normal)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 150
@@ -2702,6 +3075,10 @@ def main_normal():
                     print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
+            if data_achievements['climb_the_top'] == False:
+                data_achievements['climb_the_top'] = True
+            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                dump(data_options, save_data_options)
             with open(path.join('data', 'save_data_normal.json'),'w') as save_data_normal:
                     dump(data_normal, save_data_normal)
             with open(path.join('data','save_data_normal.json')) as save_data_normal:
@@ -2807,7 +3184,7 @@ def main_normal():
         pygame.display.update()
 
 def main_hard():
-    global data_hard, data_options, data_shop
+    global data_hard, data_options, data_shop, data_achievements
     if data_options['play_music'] == True:
         maintheme.play(-1)
     fireballs_dodged = 0
@@ -2834,6 +3211,8 @@ def main_hard():
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
                     dump(data_options, save_data_options)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 run = False
                 pygame.quit()
             if event.type == pygame.JOYAXISMOTION:
@@ -2846,10 +3225,16 @@ def main_hard():
                         player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                         player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                         player1.x += 150
+                        if data_achievements['first_steps'] == False:
+                            data_achievements['first_steps'] = True
+                        with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                            dump(data_options, save_data_options)
                         with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
                         with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
                             dump(data_hard, save_data_hard)
+                        with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                            dump(data_achievements, save_data_achievements)
                         cactusy += 50
                         bgy += 50
                         bird1.y += 50
@@ -2889,10 +3274,14 @@ def main_hard():
         top_cactus_rect = pygame.Rect(640, cactusy - 10800, 100, 800)
 
         if player_rect.colliderect(fireball_rect):
+            if data_achievements['catch_on_fire'] == False:
+                data_achievements['catch_on_fire'] = True
             with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    dump(data_hard, save_data_hard)
+                dump(data_hard, save_data_hard)
             with open(path.join('data','save_data_hard.json')) as save_data_hard:
-                    data_hard = load(save_data_hard)
+                data_hard = load(save_data_hard)
+            with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                dump(data_achievements, save_data_achievements)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 firesound.play()
@@ -2903,10 +3292,14 @@ def main_hard():
                     print("")
             fireballdeathvid()
         if player_rect.colliderect(bird_rect):
+            if data_achievements['get_hit'] == False:
+                data_achievements['get_hit'] = True
             with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
-                    dump(data_hard, save_data_hard)
+                dump(data_hard, save_data_hard)
             with open(path.join('data','save_data_hard.json')) as save_data_hard:
-                    data_hard = load(save_data_hard)
+                data_hard = load(save_data_hard)
+            with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                dump(data_achievements, save_data_achievements)
             maintheme.stop()
             if data_options['play_sfx'] == True:
                 birdsound.play()
@@ -2945,10 +3338,16 @@ def main_hard():
                 player1.img = pygame.image.load(path.join('Images', 'player', 'player.png')).convert_alpha()
                 player1.img = pygame.transform.scale(player1.img, (player1.width, player1.height))
                 player1.x += 150
+                if data_achievements['first_steps'] == False:
+                    data_achievements['first_steps'] = True
+                with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                    dump(data_options, save_data_options)
                 with open(path.join('data', 'save_data_shop.json'),'w') as save_data_shop:
                     dump(data_shop, save_data_shop)
                 with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
                     dump(data_hard, save_data_hard)
+                with open(path.join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
+                    dump(data_achievements, save_data_achievements)
                 cactusy += 50
                 bgy += 50
                 bird1.y += 50
@@ -3038,6 +3437,10 @@ def main_hard():
                     print("")
         
         if bird_rac_rect.colliderect(top_cactus_rect):
+            if data_achievements['climb_the_top'] == False:
+                data_achievements['climb_the_top'] = True
+            with open(path.join('data', 'save_data_options.json'),'w') as save_data_options:
+                dump(data_options, save_data_options)
             with open(path.join('data', 'save_data_hard.json'),'w') as save_data_hard:
                     dump(data_hard, save_data_hard)
             with open(path.join('data','save_data_hard.json')) as save_data_hard:
