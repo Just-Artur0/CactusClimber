@@ -1,5 +1,5 @@
 from pygame import transform
-class ui_button:
+class button:
     def __init__(self, x, y, width, height, image):
         self.x = x
         self.y = y
