@@ -1,11 +1,12 @@
 from moviepy.editor import VideoFileClip
-from pygame import display, transform, image, font, mixer, joystick, time, mouse, event, quit, Rect, key, Surface
+from pygame import display, transform, image, font, mixer, joystick, time, event, quit, Rect, key, Surface
 from pygame.locals import QUIT, JOYAXISMOTION, JOYBUTTONDOWN, MOUSEBUTTONDOWN, K_a, K_d, K_LEFT, K_RIGHT, K_F11, KEYDOWN, K_ESCAPE, RESIZABLE, FULLSCREEN, NOFRAME, VIDEORESIZE
 from Player import player
 from Button import button
 from random import choice, randint
 from json import dump, load
 from os.path import join
+from sys import exit
 font.init()
 mixer.init()
 joystick.init()
@@ -243,6 +244,7 @@ def win():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -285,6 +287,7 @@ def credits():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -297,7 +300,7 @@ def credits():
                 if joystick.Joystick(0).get_button(1):
                     start()
             elif e.type == MOUSEBUTTONDOWN:
-                mousex, mousey = mouse.get_pos()
+                mousex, mousey = scale_mouse_pos(*e.pos)
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 if back_rect.collidepoint(mousex, mousey):
                     start()
@@ -432,6 +435,7 @@ def shop():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -752,7 +756,7 @@ def shop():
                     Select_Box.y += 150
                     last_move_time = current_time
             elif e.type == MOUSEBUTTONDOWN:
-                mousex, mousey = mouse.get_pos()
+                mousex, mousey = scale_mouse_pos(*e.pos)
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 equip_rect = Rect(Equip.x, Equip.y, Equip.width, Equip.height)
                 unequip_rect = Rect(Unequip.x, Unequip.y, Unequip.width, Unequip.height)
@@ -1189,6 +1193,7 @@ def options():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -1278,7 +1283,7 @@ def options():
                     Select_Box.y += 100
                     last_move_time2 = current_time2
             elif e.type == MOUSEBUTTONDOWN:
-                mousex, mousey = mouse.get_pos()
+                mousex, mousey = scale_mouse_pos(*e.pos)
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 checked_off_rect = Rect(Checked_off.x, Checked_off.y, Checked_off.width, Checked_off.height)
                 checked_rect = Rect(Checked.x, Checked.y, Checked.width, Checked.height)
@@ -1383,6 +1388,7 @@ def start():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -1480,13 +1486,14 @@ def start():
                     elif joystick.Joystick(0).get_button(4):
                         run = False
                         quit()
+                        exit()
                     elif joystick.Joystick(0).get_button(5):
                         show_textbox = True
                         show_start = False
                     elif joystick.Joystick(0).get_button(7):
                         options()
             elif e.type == MOUSEBUTTONDOWN:
-                mousex, mousey = mouse.get_pos()
+                mousex, mousey = scale_mouse_pos(*e.pos)
                 play_rect = Rect(Play.x, Play.y, Play.width, Play.height)
                 options_rect = Rect(Options.x, Options.y, Options.width, Options.height)
                 shop_rect = Rect(Shop.x, Shop.y, Shop.width, Shop.height)
@@ -1502,6 +1509,7 @@ def start():
                     elif quit_rect.collidepoint(mousex, mousey):
                         run = False
                         quit()
+                        exit()
                     elif options_rect.collidepoint(mousex, mousey):
                         options()
                     elif shop_rect.collidepoint(mousex, mousey):
@@ -1742,6 +1750,7 @@ def achievements():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -1754,7 +1763,7 @@ def achievements():
                 if joystick.Joystick(0).get_button(1):
                     start()
             elif e.type == MOUSEBUTTONDOWN:
-                mousex, mousey = mouse.get_pos()
+                mousex, mousey = scale_mouse_pos(*e.pos)
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 if back_rect.collidepoint(mousex, mousey):
                     start()
@@ -1836,6 +1845,7 @@ def mainmenu():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -1881,7 +1891,7 @@ def mainmenu():
                     Hard_Hide_Stats.image = transform.scale(hide_stats_image, (250, 50))
                     Hard_Hide_Stats.x = 850
             elif e.type == MOUSEBUTTONDOWN:
-                mousex, mousey = mouse.get_pos()
+                mousex, mousey = scale_mouse_pos(*e.pos)
                 easy_rect = Rect(Easy.x, Easy.y, Easy.width, Easy.height)
                 normal_rect = Rect(Normal.x, Normal.y, Normal.width, Normal.height)
                 hard_rect = Rect(Hard.x, Hard.y, Hard.width, Hard.height)
@@ -2018,6 +2028,7 @@ def mainspot():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -2075,6 +2086,7 @@ def endvideo():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -2099,6 +2111,7 @@ def firstvideo_easy():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -2122,6 +2135,7 @@ def firstvideo_normal():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -2145,6 +2159,7 @@ def firstvideo_hard():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -2168,6 +2183,7 @@ def fireballdeathvid():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -2192,6 +2208,7 @@ def birddeathvid():
             if e.type == QUIT:
                 save_data()
                 quit()
+                exit()
                 run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -2230,6 +2247,7 @@ def main_easy():
                 save_data()
                 run = False
                 quit()
+                exit()
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
             elif e.type == KEYDOWN:
@@ -2561,6 +2579,7 @@ def main_normal():
                 save_data()
                 run = False
                 quit()
+                exit()
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
             elif e.type == KEYDOWN:
@@ -2894,6 +2913,7 @@ def main_hard():
                 save_data()
                 run = False
                 quit()
+                exit()
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
             elif e.type == KEYDOWN:
