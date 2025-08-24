@@ -1,6 +1,6 @@
 from moviepy.editor import VideoFileClip
-from pygame import display, transform, image, font, mixer, joystick, time, mouse, event, quit, Rect, key
-from pygame.locals import QUIT, JOYAXISMOTION, JOYBUTTONDOWN, MOUSEBUTTONDOWN, K_a, K_d, K_LEFT, K_RIGHT
+from pygame import display, transform, image, font, mixer, joystick, time, mouse, event, quit, Rect, key, Surface
+from pygame.locals import QUIT, JOYAXISMOTION, JOYBUTTONDOWN, MOUSEBUTTONDOWN, K_a, K_d, K_LEFT, K_RIGHT, K_F11, KEYDOWN, K_ESCAPE, RESIZABLE, FULLSCREEN, NOFRAME, VIDEORESIZE
 from Player import player
 from Button import button
 from random import choice, randint
@@ -12,9 +12,47 @@ joystick.init()
 large_font = font.SysFont('comicsans', 80)
 medium_font = font.SysFont('comicsans', 40)
 small_font = font.SysFont('comicsans', 20)
-screen_width = 1280
-screen_height = 720
-window = display.set_mode((screen_width, screen_height))
+BASE_WIDTH = 1280
+BASE_HEIGHT = 720
+current_width = BASE_WIDTH
+current_height = BASE_HEIGHT
+scale_x = 1.0
+scale_y = 1.0
+is_fullscreen = False
+window = display.set_mode((BASE_WIDTH, BASE_HEIGHT), RESIZABLE)
+game_surface = Surface((BASE_WIDTH, BASE_HEIGHT))
+def handle_resize(new_width, new_height):
+    global window, current_width, current_height, scale_x, scale_y
+    current_width = new_width
+    current_height = new_height
+    scale_x = new_width / BASE_WIDTH
+    scale_y = new_height / BASE_HEIGHT
+def scale_mouse_pos(mouse_x, mouse_y):
+    """Convert mouse coordinates back to game coordinates"""
+    return int(mouse_x / scale_x), int(mouse_y / scale_y)
+def toggle_fullscreen():
+    global window, is_fullscreen, current_width, current_height
+    if is_fullscreen:
+        # Switch to windowed
+        window = display.set_mode((BASE_WIDTH, BASE_HEIGHT), RESIZABLE)
+        is_fullscreen = False
+        handle_resize(BASE_WIDTH, BASE_HEIGHT)
+    else:
+        # Switch to fullscreen
+        display_info = display.Info()
+        window = display.set_mode(
+            (display_info.current_w, display_info.current_h),
+            NOFRAME | FULLSCREEN
+        )
+        is_fullscreen = True
+        handle_resize(display_info.current_w, display_info.current_h)
+def render_to_screen():
+    if current_width != BASE_WIDTH or current_height != BASE_HEIGHT:
+        scaled_surface = transform.scale(game_surface, (current_width, current_height))
+        window.blit(scaled_surface, (0, 0))
+    else:
+        window.blit(game_surface, (0, 0))
+    display.flip()
 display.set_caption("Cactus Climber")
 joysticks = [joystick.Joystick(x) for x in range(joystick.get_count())]
 bottom_cactus = image.load(join('Images', 'cactus', 'bottom_cactus.png')).convert()
@@ -195,6 +233,7 @@ def save_data():
     with open(join('data', 'save_data_achievements.json'),'w') as save_data_achievements:
         dump(data_achievements, save_data_achievements)
 def win():
+    global window, is_fullscreen
     Money = button(1030, 600, 250, 100, money_image)
     run = True
     clockyy = time.Clock()
@@ -205,6 +244,13 @@ def win():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == -1: #left
@@ -214,23 +260,23 @@ def win():
         main_text = medium_font.render("Press A or Left key to Go Back Down", 1, (0, 0, 255))
         win_text = medium_font.render("You Reached the Top!", 1, (0, 0, 255))
         win1_text = medium_font.render("but at what Cost?", 1, (255, 0, 0))
-        window.blit(win_text, (500, 0))
-        window.blit(win1_text, (550, 50))
-        window.blit(main_text, (360, 600))
+        game_surface.blit(win_text, (500, 0))
+        game_surface.blit(win1_text, (550, 50))
+        game_surface.blit(main_text, (360, 600))
         #keyboard input
         keys = key.get_pressed()
         if keys[K_a] or keys[K_LEFT]:
-            display.update()
+            display.flip()
             time.wait(3000)
             endvideo()
         #displaying on screen
-        window.blit(money_text, ((screen_width - money_text.get_width() - 225), 600))
-        window.blit(Money.image, (Money.x, Money.y))
-        display.update()
+        game_surface.blit(money_text, ((game_surface.get_width() - money_text.get_width() - 225), 600))
+        game_surface.blit(Money.image, (Money.x, Money.y))
+        render_to_screen()
 def credits():
-    global data_options, window
+    global data_options, window, is_fullscreen
     Back = button(1030, 600, 250, 100, back_image)
-    Credits = button(0, 0, screen_width, screen_height, credits_bg_image)
+    Credits = button(0, 0, game_surface.get_width(), game_surface.get_height(), credits_bg_image)
     run = True
     clockyy = time.Clock()
     while run:  
@@ -240,6 +286,13 @@ def credits():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                     start()
@@ -248,11 +301,11 @@ def credits():
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 if back_rect.collidepoint(mousex, mousey):
                     start()
-        window.blit(Credits.image, (Credits.x, Credits.y))
-        window.blit(Back.image, (Back.x, Back.y))
-        display.update()
+        game_surface.blit(Credits.image, (Credits.x, Credits.y))
+        game_surface.blit(Back.image, (Back.x, Back.y))
+        render_to_screen()
 def shop():
-    global show_select_box, data_shop, data_options, play_denied, play_denied2, play_denied3, play_denied4, play_denied5, play_denied6, play_denied7, play_denied8
+    global show_select_box, data_shop, data_options, play_denied, play_denied2, play_denied3, play_denied4, play_denied5, play_denied6, play_denied7, play_denied8, window, is_fullscreen
     move_delay = 150  # milliseconds
     last_move_time = time.get_ticks()
     Back = button(0, 600, 250, 100, back_image)
@@ -380,6 +433,13 @@ def shop():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                     start()
@@ -1017,63 +1077,63 @@ def shop():
         cost7_text = medium_font.render("500", 1, (64, 255, 25))
         cost8_text = medium_font.render("2000", 1, (64, 255, 25))
         money_text = large_font.render(f": {data_shop['money']}", 1, (64, 255, 25))
-        window.fill((204, 102, 25))
-        window.blit(money_text, (250, 0))
+        game_surface.fill((204, 102, 25))
+        game_surface.blit(money_text, (250, 0))
         if data_shop['show_cost'] == True:
-            window.blit(cost_text, (60, 250))
+            game_surface.blit(cost_text, (60, 250))
         if data_shop['show_cost2'] == True:
-            window.blit(cost2_text, (360, 250))
+            game_surface.blit(cost2_text, (360, 250))
         if data_shop['show_cost3'] == True:
-            window.blit(cost3_text, (660, 250))
+            game_surface.blit(cost3_text, (660, 250))
         if data_shop['show_cost4'] == True:
-            window.blit(cost4_text, (950, 250))
+            game_surface.blit(cost4_text, (950, 250))
         if data_shop['show_cost5'] == True:
-            window.blit(cost5_text, (60, 400))
+            game_surface.blit(cost5_text, (60, 400))
         if data_shop['show_cost6'] == True:
-            window.blit(cost6_text, (660, 400))
+            game_surface.blit(cost6_text, (660, 400))
         if data_shop['show_cost7'] == True:
-            window.blit(cost7_text, (360, 400))
+            game_surface.blit(cost7_text, (360, 400))
         if data_shop['show_cost8'] == True:
-            window.blit(cost8_text, (950, 400))
-        window.blit(Back.image, (Back.x, Back.y))
-        window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
-        window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
-        window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
-        window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
-        window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
-        window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
-        window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
-        window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
-        window.blit(Money.image, (Money.x, Money.y))
-        window.blit(Buy.image, (Buy.x, Buy.y))
-        window.blit(Buy2.image, (Buy2.x, Buy2.y))
-        window.blit(Buy3.image, (Buy3.x, Buy3.y))
-        window.blit(Buy4.image, (Buy4.x, Buy4.y))
-        window.blit(Buy5.image, (Buy5.x, Buy5.y))
-        window.blit(Buy6.image, (Buy6.x, Buy6.y))
-        window.blit(Buy7.image, (Buy7.x, Buy7.y))
-        window.blit(Buy8.image, (Buy8.x, Buy8.y))
-        window.blit(Equip.image, (Equip.x, Equip.y))
-        window.blit(Equip2.image, (Equip2.x, Equip2.y))
-        window.blit(Equip3.image, (Equip3.x, Equip3.y))
-        window.blit(Equip4.image, (Equip4.x, Equip4.y))
-        window.blit(Equip5.image, (Equip5.x, Equip5.y))
-        window.blit(Equip6.image, (Equip6.x, Equip6.y))
-        window.blit(Equip7.image, (Equip7.x, Equip7.y))
-        window.blit(Equip8.image, (Equip8.x, Equip8.y))
-        window.blit(Unequip.image, (Unequip.x, Unequip.y))
-        window.blit(Unequip2.image, (Unequip2.x, Unequip2.y))
-        window.blit(Unequip3.image, (Unequip3.x, Unequip3.y))
-        window.blit(Unequip4.image, (Unequip4.x, Unequip4.y))
-        window.blit(Unequip5.image, (Unequip5.x, Unequip5.y))
-        window.blit(Unequip6.image, (Unequip6.x, Unequip6.y))
-        window.blit(Unequip7.image, (Unequip7.x, Unequip7.y))
-        window.blit(Unequip8.image, (Unequip8.x, Unequip8.y))
+            game_surface.blit(cost8_text, (950, 400))
+        game_surface.blit(Back.image, (Back.x, Back.y))
+        game_surface.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
+        game_surface.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
+        game_surface.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
+        game_surface.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
+        game_surface.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
+        game_surface.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
+        game_surface.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
+        game_surface.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
+        game_surface.blit(Money.image, (Money.x, Money.y))
+        game_surface.blit(Buy.image, (Buy.x, Buy.y))
+        game_surface.blit(Buy2.image, (Buy2.x, Buy2.y))
+        game_surface.blit(Buy3.image, (Buy3.x, Buy3.y))
+        game_surface.blit(Buy4.image, (Buy4.x, Buy4.y))
+        game_surface.blit(Buy5.image, (Buy5.x, Buy5.y))
+        game_surface.blit(Buy6.image, (Buy6.x, Buy6.y))
+        game_surface.blit(Buy7.image, (Buy7.x, Buy7.y))
+        game_surface.blit(Buy8.image, (Buy8.x, Buy8.y))
+        game_surface.blit(Equip.image, (Equip.x, Equip.y))
+        game_surface.blit(Equip2.image, (Equip2.x, Equip2.y))
+        game_surface.blit(Equip3.image, (Equip3.x, Equip3.y))
+        game_surface.blit(Equip4.image, (Equip4.x, Equip4.y))
+        game_surface.blit(Equip5.image, (Equip5.x, Equip5.y))
+        game_surface.blit(Equip6.image, (Equip6.x, Equip6.y))
+        game_surface.blit(Equip7.image, (Equip7.x, Equip7.y))
+        game_surface.blit(Equip8.image, (Equip8.x, Equip8.y))
+        game_surface.blit(Unequip.image, (Unequip.x, Unequip.y))
+        game_surface.blit(Unequip2.image, (Unequip2.x, Unequip2.y))
+        game_surface.blit(Unequip3.image, (Unequip3.x, Unequip3.y))
+        game_surface.blit(Unequip4.image, (Unequip4.x, Unequip4.y))
+        game_surface.blit(Unequip5.image, (Unequip5.x, Unequip5.y))
+        game_surface.blit(Unequip6.image, (Unequip6.x, Unequip6.y))
+        game_surface.blit(Unequip7.image, (Unequip7.x, Unequip7.y))
+        game_surface.blit(Unequip8.image, (Unequip8.x, Unequip8.y))
         if show_select_box == True:
-            window.blit(Select_Box.image, (Select_Box.x, Select_Box.y))
-        display.update()
+            game_surface.blit(Select_Box.image, (Select_Box.x, Select_Box.y))
+        render_to_screen()
 def options():
-    global data_options, show_select_box
+    global data_options, show_select_box, window, is_fullscreen
     move_delay = 250  # milliseconds
     last_move_time = time.get_ticks()
     move_delay2 = 250  # milliseconds
@@ -1130,6 +1190,13 @@ def options():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                         start()
@@ -1281,22 +1348,22 @@ def options():
                     Checked3.x = 760
                     Checked_off3.image = transform.scale(checked_off_image, (0, 0))
                     Checked_off3.x = 10000
-        window.fill((204, 102, 25))
-        window.blit(Back.image, (Back.x, Back.y))
-        window.blit(Music.image, (Music.x, Music.y))
-        window.blit(SFX.image, (SFX.x, SFX.y))
-        window.blit(Controller_Vibration.image, (Controller_Vibration.x, Controller_Vibration.y))
-        window.blit(Checked.image, (Checked.x, Checked.y))
-        window.blit(Checked_off.image, (Checked_off.x, Checked_off.y))
-        window.blit(Checked2.image, (Checked2.x, Checked2.y))
-        window.blit(Checked_off2.image, (Checked_off2.x, Checked_off2.y))
-        window.blit(Checked3.image, (Checked3.x, Checked3.y))
-        window.blit(Checked_off3.image, (Checked_off3.x, Checked_off3.y))
+        game_surface.fill((204, 102, 25))
+        game_surface.blit(Back.image, (Back.x, Back.y))
+        game_surface.blit(Music.image, (Music.x, Music.y))
+        game_surface.blit(SFX.image, (SFX.x, SFX.y))
+        game_surface.blit(Controller_Vibration.image, (Controller_Vibration.x, Controller_Vibration.y))
+        game_surface.blit(Checked.image, (Checked.x, Checked.y))
+        game_surface.blit(Checked_off.image, (Checked_off.x, Checked_off.y))
+        game_surface.blit(Checked2.image, (Checked2.x, Checked2.y))
+        game_surface.blit(Checked_off2.image, (Checked_off2.x, Checked_off2.y))
+        game_surface.blit(Checked3.image, (Checked3.x, Checked3.y))
+        game_surface.blit(Checked_off3.image, (Checked_off3.x, Checked_off3.y))
         if show_select_box == True:
-            window.blit(Select_Box.image, (Select_Box.x, Select_Box.y))
-        display.update()
+            game_surface.blit(Select_Box.image, (Select_Box.x, Select_Box.y))
+        render_to_screen()
 def start():
-    global show_textbox, show_start, data_easy, data_normal, data_hard, data_options, data_shop, data_achievements
+    global show_textbox, show_start, data_easy, data_normal, data_hard, data_options, data_shop, data_achievements, window, is_fullscreen
     Play = button(500, 150, 250, 100, play_image)
     Options = button(500, 260, 250, 100, options_image)
     Shop = button(500, 370, 250, 100, shop_image)
@@ -1317,6 +1384,13 @@ def start():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYBUTTONDOWN:
                 if show_textbox == True:
                     if joystick.Joystick(0).get_button(1):
@@ -1517,23 +1591,23 @@ def start():
                     show_start = False
         title_text = large_font.render("Cactus Climber", 1, (64, 255, 25)) 
         version_text = medium_font.render("v1.3.1", 1, (64, 255, 25))
-        window.fill((204, 102, 25))
-        window.blit(Play.image, (Play.x, Play.y))
-        window.blit(Options.image, (Options.x, Options.y))
-        window.blit(Shop.image, (Shop.x, Shop.y))
-        window.blit(Credits.image, (Credits.x, Credits.y))
-        window.blit(Quit.image, (Quit.x, Quit.y))
-        window.blit(Reset.image, (Reset.x, Reset.y))
-        window.blit(Achievements.image, (Achievements.x, Achievements.y))
-        window.blit(title_text, (350, 0))
-        window.blit(version_text, (0, 0))
+        game_surface.fill((204, 102, 25))
+        game_surface.blit(Play.image, (Play.x, Play.y))
+        game_surface.blit(Options.image, (Options.x, Options.y))
+        game_surface.blit(Shop.image, (Shop.x, Shop.y))
+        game_surface.blit(Credits.image, (Credits.x, Credits.y))
+        game_surface.blit(Quit.image, (Quit.x, Quit.y))
+        game_surface.blit(Reset.image, (Reset.x, Reset.y))
+        game_surface.blit(Achievements.image, (Achievements.x, Achievements.y))
+        game_surface.blit(title_text, (350, 0))
+        game_surface.blit(version_text, (0, 0))
         if show_textbox == True:
-            window.blit(TextBox.image, (TextBox.x, TextBox.y))
-            window.blit(No.image, (No.x, No.y))
-            window.blit(Yes.image, (Yes.x, Yes.y))
-        display.update()
+            game_surface.blit(TextBox.image, (TextBox.x, TextBox.y))
+            game_surface.blit(No.image, (No.x, No.y))
+            game_surface.blit(Yes.image, (Yes.x, Yes.y))
+        render_to_screen()
 def achievements():
-    global data_achievements, data_easy, data_hard, data_normal, data_shop
+    global data_achievements, data_easy, data_hard, data_normal, data_shop, window, is_fullscreen
     Back = button(0, 670, 100, 50, back_image)
     First_Steps = button(10, 100, 250, 100, first_steps_image)
     Checked_off = button(280, 100, 100, 100, checked_off_image)
@@ -1669,6 +1743,13 @@ def achievements():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                     start()
@@ -1679,47 +1760,47 @@ def achievements():
                     start()
         title_text = large_font.render("ACHIEVEMENTS", 1, (255, 0, 0))
         achievements_complete_text = medium_font.render(str(data_achievements['achievements_complete']) + "/11 Complete", 1, (255, 255, 255))
-        window.fill((204, 102, 25))
-        window.blit(Back.image, (Back.x, Back.y))
-        window.blit(First_Steps.image, (First_Steps.x, First_Steps.y))
-        window.blit(Back.image, (Back.x, Back.y))
-        window.blit(Checked.image, (Checked.x, Checked.y))
-        window.blit(Checked_off.image, (Checked_off.x, Checked_off.y))
-        window.blit(Climb_The_Top.image, (Climb_The_Top.x, Climb_The_Top.y))
-        window.blit(Checked1.image, (Checked1.x, Checked1.y))
-        window.blit(Checked_off1.image, (Checked_off1.x, Checked_off1.y))
-        window.blit(Cactus_Climber.image, (Cactus_Climber.x, Cactus_Climber.y))
-        window.blit(Checked2.image, (Checked2.x, Checked2.y))
-        window.blit(Checked_off2.image, (Checked_off2.x, Checked_off2.y))
-        window.blit(Catch_On_Fire.image, (Catch_On_Fire.x, Catch_On_Fire.y))
-        window.blit(Checked3.image, (Checked3.x, Checked3.y))
-        window.blit(Checked_off3.image, (Checked_off3.x, Checked_off3.y))
-        window.blit(Climb.image, (Climb.x, Climb.y))
-        window.blit(Checked4.image, (Checked4.x, Checked4.y))
-        window.blit(Checked_off4.image, (Checked_off4.x, Checked_off4.y))
-        window.blit(Dont_Catch_On_Fire.image, (Dont_Catch_On_Fire.x, Dont_Catch_On_Fire.y))
-        window.blit(Checked5.image, (Checked5.x, Checked5.y))
-        window.blit(Checked_off5.image, (Checked_off5.x, Checked_off5.y))
-        window.blit(Dont_Get_Hit.image, (Dont_Get_Hit.x, Dont_Get_Hit.y))
-        window.blit(Checked6.image, (Checked6.x, Checked6.y))
-        window.blit(Checked_off6.image, (Checked_off6.x, Checked_off6.y))
-        window.blit(Expert.image, (Expert.x, Expert.y))
-        window.blit(Checked7.image, (Checked7.x, Checked7.y))
-        window.blit(Checked_off7.image, (Checked_off7.x, Checked_off7.y))
-        window.blit(Get_Hit.image, (Get_Hit.x, Get_Hit.y))
-        window.blit(Checked8.image, (Checked8.x, Checked8.y))
-        window.blit(Checked_off8.image, (Checked_off8.x, Checked_off8.y))
-        window.blit(Hat_Collector.image, (Hat_Collector.x, Hat_Collector.y))
-        window.blit(Checked9.image, (Checked9.x, Checked9.y))
-        window.blit(Checked_off9.image, (Checked_off9.x, Checked_off9.y))
-        window.blit(The_True_Cactus_Climber.image, (The_True_Cactus_Climber.x, The_True_Cactus_Climber.y))
-        window.blit(Checked10.image, (Checked10.x, Checked10.y))
-        window.blit(Checked_off10.image, (Checked_off10.x, Checked_off10.y))
-        window.blit(title_text, (370, 0))
-        window.blit(achievements_complete_text, (0, 600))
-        display.update()
+        game_surface.fill((204, 102, 25))
+        game_surface.blit(Back.image, (Back.x, Back.y))
+        game_surface.blit(First_Steps.image, (First_Steps.x, First_Steps.y))
+        game_surface.blit(Back.image, (Back.x, Back.y))
+        game_surface.blit(Checked.image, (Checked.x, Checked.y))
+        game_surface.blit(Checked_off.image, (Checked_off.x, Checked_off.y))
+        game_surface.blit(Climb_The_Top.image, (Climb_The_Top.x, Climb_The_Top.y))
+        game_surface.blit(Checked1.image, (Checked1.x, Checked1.y))
+        game_surface.blit(Checked_off1.image, (Checked_off1.x, Checked_off1.y))
+        game_surface.blit(Cactus_Climber.image, (Cactus_Climber.x, Cactus_Climber.y))
+        game_surface.blit(Checked2.image, (Checked2.x, Checked2.y))
+        game_surface.blit(Checked_off2.image, (Checked_off2.x, Checked_off2.y))
+        game_surface.blit(Catch_On_Fire.image, (Catch_On_Fire.x, Catch_On_Fire.y))
+        game_surface.blit(Checked3.image, (Checked3.x, Checked3.y))
+        game_surface.blit(Checked_off3.image, (Checked_off3.x, Checked_off3.y))
+        game_surface.blit(Climb.image, (Climb.x, Climb.y))
+        game_surface.blit(Checked4.image, (Checked4.x, Checked4.y))
+        game_surface.blit(Checked_off4.image, (Checked_off4.x, Checked_off4.y))
+        game_surface.blit(Dont_Catch_On_Fire.image, (Dont_Catch_On_Fire.x, Dont_Catch_On_Fire.y))
+        game_surface.blit(Checked5.image, (Checked5.x, Checked5.y))
+        game_surface.blit(Checked_off5.image, (Checked_off5.x, Checked_off5.y))
+        game_surface.blit(Dont_Get_Hit.image, (Dont_Get_Hit.x, Dont_Get_Hit.y))
+        game_surface.blit(Checked6.image, (Checked6.x, Checked6.y))
+        game_surface.blit(Checked_off6.image, (Checked_off6.x, Checked_off6.y))
+        game_surface.blit(Expert.image, (Expert.x, Expert.y))
+        game_surface.blit(Checked7.image, (Checked7.x, Checked7.y))
+        game_surface.blit(Checked_off7.image, (Checked_off7.x, Checked_off7.y))
+        game_surface.blit(Get_Hit.image, (Get_Hit.x, Get_Hit.y))
+        game_surface.blit(Checked8.image, (Checked8.x, Checked8.y))
+        game_surface.blit(Checked_off8.image, (Checked_off8.x, Checked_off8.y))
+        game_surface.blit(Hat_Collector.image, (Hat_Collector.x, Hat_Collector.y))
+        game_surface.blit(Checked9.image, (Checked9.x, Checked9.y))
+        game_surface.blit(Checked_off9.image, (Checked_off9.x, Checked_off9.y))
+        game_surface.blit(The_True_Cactus_Climber.image, (The_True_Cactus_Climber.x, The_True_Cactus_Climber.y))
+        game_surface.blit(Checked10.image, (Checked10.x, Checked10.y))
+        game_surface.blit(Checked_off10.image, (Checked_off10.x, Checked_off10.y))
+        game_surface.blit(title_text, (370, 0))
+        game_surface.blit(achievements_complete_text, (0, 600))
+        render_to_screen()
 def mainmenu():
-    global diff, data_options
+    global diff, data_options, window, is_fullscreen
     Money = button(1030, 0, 250, 100, money_image)
     Back = button(0, 670, 100, 50, back_image)
     Easy = button(50, 300, 350, 200, easy_image)
@@ -1756,6 +1837,13 @@ def mainmenu():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(3):
                     diff = 1
@@ -1879,39 +1967,39 @@ def mainmenu():
         title_text = font.SysFont('comicsans', 140).render("Cactus Climber", 1, (64, 255, 25)) 
         version_text = medium_font.render("v1.3.1", 1, (64, 255, 25))
         money_text = large_font.render(f"{data_shop['money']} : ", 1, (64, 255, 25))
-        window.fill((204, 102, 25))
+        game_surface.fill((204, 102, 25))
         if data_options['show_easy'] == True:
-            window.blit(total_fireballs_dodged_easy_text, (50, 550))
-            window.blit(total_birds_dodged_easy_text, (50, 580))
-            window.blit(highest_meter_easy_text, (50, 610))
-            window.blit(full_meter_easy_text, (50, 640))
+            game_surface.blit(total_fireballs_dodged_easy_text, (50, 550))
+            game_surface.blit(total_birds_dodged_easy_text, (50, 580))
+            game_surface.blit(highest_meter_easy_text, (50, 610))
+            game_surface.blit(full_meter_easy_text, (50, 640))
         if data_options['show_normal'] == True:
-            window.blit(total_fireballs_dodged_normal_text, (450, 550))
-            window.blit(total_birds_dodged_normal_text, (450, 580))
-            window.blit(highest_meter_normal_text, (450, 610))
-            window.blit(full_meter_normal_text, (450, 640))
+            game_surface.blit(total_fireballs_dodged_normal_text, (450, 550))
+            game_surface.blit(total_birds_dodged_normal_text, (450, 580))
+            game_surface.blit(highest_meter_normal_text, (450, 610))
+            game_surface.blit(full_meter_normal_text, (450, 640))
         if data_options['show_hard'] == True:
-            window.blit(total_fireballs_dodged_hard_text, (850, 550))
-            window.blit(total_birds_dodged_hard_text, (850, 580))
-            window.blit(highest_meter_hard_text, (850, 610))
-            window.blit(full_meter_hard_text, (850, 640))
-        window.blit(Easy.image, (Easy.x, Easy.y))
-        window.blit(Normal.image, (Normal.x, Normal.y))
-        window.blit(Hard.image, (Hard.x, Hard.y))
-        window.blit(Easy_Stats.image, (Easy_Stats.x, Easy_Stats.y))
-        window.blit(Normal_Stats.image, (Normal_Stats.x, Normal_Stats.y))
-        window.blit(Hard_Stats.image, (Hard_Stats.x, Hard_Stats.y))
-        window.blit(Easy_Hide_Stats.image, (Easy_Hide_Stats.x, Easy_Hide_Stats.y))
-        window.blit(Normal_Hide_Stats.image, (Normal_Hide_Stats.x, Normal_Hide_Stats.y))
-        window.blit(Hard_Hide_Stats.image, (Hard_Hide_Stats.x, Hard_Hide_Stats.y))
-        window.blit(Back.image, (Back.x, Back.y))
-        window.blit(title_text, (150, 90))
-        window.blit(version_text, (0, 0))
-        window.blit(money_text, ((screen_width - money_text.get_width() - 225), 0))
-        window.blit(Money.image, (Money.x, Money.y))
-        display.update()
+            game_surface.blit(total_fireballs_dodged_hard_text, (850, 550))
+            game_surface.blit(total_birds_dodged_hard_text, (850, 580))
+            game_surface.blit(highest_meter_hard_text, (850, 610))
+            game_surface.blit(full_meter_hard_text, (850, 640))
+        game_surface.blit(Easy.image, (Easy.x, Easy.y))
+        game_surface.blit(Normal.image, (Normal.x, Normal.y))
+        game_surface.blit(Hard.image, (Hard.x, Hard.y))
+        game_surface.blit(Easy_Stats.image, (Easy_Stats.x, Easy_Stats.y))
+        game_surface.blit(Normal_Stats.image, (Normal_Stats.x, Normal_Stats.y))
+        game_surface.blit(Hard_Stats.image, (Hard_Stats.x, Hard_Stats.y))
+        game_surface.blit(Easy_Hide_Stats.image, (Easy_Hide_Stats.x, Easy_Hide_Stats.y))
+        game_surface.blit(Normal_Hide_Stats.image, (Normal_Hide_Stats.x, Normal_Hide_Stats.y))
+        game_surface.blit(Hard_Hide_Stats.image, (Hard_Hide_Stats.x, Hard_Hide_Stats.y))
+        game_surface.blit(Back.image, (Back.x, Back.y))
+        game_surface.blit(title_text, (150, 90))
+        game_surface.blit(version_text, (0, 0))
+        game_surface.blit(money_text, ((game_surface.get_width() - money_text.get_width() - 225), 0))
+        game_surface.blit(Money.image, (Money.x, Money.y))
+        render_to_screen()
 def mainspot():
-    global data_shop
+    global data_shop, window, is_fullscreen
     Cowboy_Hat = button(175, 380, 40, 30, cowboy_hat_image)
     Thinking_Hat = button(175, 380, 40, 30, thinking_hat_image)
     Top_Hat = button(175, 375, 40, 30, top_hat_image)
@@ -1931,6 +2019,13 @@ def mainspot():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1 and diff == 1: #right
@@ -1947,29 +2042,30 @@ def mainspot():
             firstvideo_normal()
         elif keys[K_d] and diff == 3 or keys[K_RIGHT] and diff == 3:
             firstvideo_hard()
-        window.fill((204, 102, 0))
-        window.blit(bottom_cactus, (640, -500))
-        window.blit(bg, (0, 0))
-        window.blit(begin_player, (150, 400))
-        window.blit(begin_text, (360, 600))
+        game_surface.fill((204, 102, 0))
+        game_surface.blit(bottom_cactus, (640, -500))
+        game_surface.blit(bg, (0, 0))
+        game_surface.blit(begin_player, (150, 400))
+        game_surface.blit(begin_text, (360, 600))
         if data_shop['cowboy_hat_equipped'] == True:
-            window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
+            game_surface.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
         if data_shop['thinking_hat_equipped'] == True:
-            window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
+            game_surface.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
         if data_shop['top_hat_equipped'] == True:
-            window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
+            game_surface.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
         if data_shop['red_cap_equipped'] == True:
-            window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
+            game_surface.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
         if data_shop['party_hat_equipped'] == True:
-            window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
+            game_surface.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
         if data_shop['witch_hat_equipped'] == True:
-            window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
+            game_surface.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
         if data_shop['mexican_hat_equipped'] == True:
-            window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
+            game_surface.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
         if data_shop['king_hat_equipped'] == True:
-            window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
-        display.update()
+            game_surface.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
+        render_to_screen()
 def endvideo():
+    global window, is_fullscreen
     run = True
     clockyy = time.Clock()
     endvid = VideoFileClip("Videos/end.mp4")
@@ -1980,12 +2076,20 @@ def endvideo():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
         endvid.preview()
-        display.update()
+        render_to_screen()
         time.wait(5000)
         endvid.close()
         mainmenu()
 def firstvideo_easy():
+    global window, is_fullscreen
     run = True
     clockyy = time.Clock()
     beginvid = VideoFileClip("Videos/begin.mp4")
@@ -1996,11 +2100,19 @@ def firstvideo_easy():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
         beginvid.preview()
-        display.update()
+        render_to_screen()
         beginvid.close()
         main_easy()
 def firstvideo_normal():
+    global window, is_fullscreen
     run = True
     clockyy = time.Clock()
     beginvid = VideoFileClip("Videos/begin.mp4")
@@ -2011,11 +2123,19 @@ def firstvideo_normal():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
         beginvid.preview()
-        display.update()
+        render_to_screen()
         beginvid.close()
         main_normal()
 def firstvideo_hard():
+    global window, is_fullscreen
     run = True
     clockyy = time.Clock()
     beginvid = VideoFileClip("Videos/begin.mp4")
@@ -2026,11 +2146,19 @@ def firstvideo_hard():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
         beginvid.preview()
-        display.update()
+        render_to_screen()
         beginvid.close()
         main_hard()
 def fireballdeathvid():
+    global window, is_fullscreen
     run = True
     clockyy = time.Clock()
     fireballdeath = VideoFileClip("Videos/fireballdeath.mp4")
@@ -2041,12 +2169,20 @@ def fireballdeathvid():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
         fireballdeath.preview()
-        display.update()
+        render_to_screen()
         time.wait(4000)
         fireballdeath.close()
         mainmenu()
 def birddeathvid():
+    global window, is_fullscreen
     run = True
     clockyy = time.Clock()
     birddeath = VideoFileClip("Videos/birddeath.mp4")
@@ -2057,13 +2193,20 @@ def birddeathvid():
                 save_data()
                 quit()
                 run = False
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
         birddeath.preview()
-        display.update()
+        render_to_screen()
         time.wait(4000)
         birddeath.close()
         mainmenu()
 def main_easy():
-    global data_easy, data_options, data_shop, data_achievements
+    global data_easy, data_options, data_shop, data_achievements, window, is_fullscreen
     if data_options['play_music'] == True:
         maintheme.play(-1)
     fireballs_dodged = 0
@@ -2087,6 +2230,13 @@ def main_easy():
                 save_data()
                 run = False
                 quit()
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1: #right 
@@ -2216,7 +2366,7 @@ def main_easy():
                 flap2 = False
                 flap = True
         fireball1.y += 10
-        if fireball1.y >= screen_height:
+        if fireball1.y >= game_surface.get_height():
             fireball1.y = -1000
             fireball1.x = choice([585, 760])
             data_easy['fireballs_dodged'] += 1
@@ -2224,13 +2374,13 @@ def main_easy():
                 dump(data_easy, save_data_easy)
             fireballs_dodged += 1
         bird1.x += 10
-        if bird1.x >= screen_width:
+        if bird1.x >= game_surface.get_width():
             bird1.x = -1000
             data_easy['birds_dodged'] += 1
             with open(join('data', 'save_data_easy.json'),'w') as save_data_easy:
                 dump(data_easy, save_data_easy)
             birds_dodged += 1
-        elif bird1.y >= screen_height:
+        elif bird1.y >= game_surface.get_height():
             bird1.x = -1000
             bird1.y = randint(300, 800)
             data_easy['birds_dodged'] += 1
@@ -2249,14 +2399,14 @@ def main_easy():
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
         elif fireball1.y >= 0 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
@@ -2266,23 +2416,23 @@ def main_easy():
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
         if bird_rect.colliderect(bird_rac_rect):   
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
@@ -2318,76 +2468,76 @@ def main_easy():
         meters_text = medium_font.render(f"Meters Up: {meters_up}", 1, (255, 255, 255))
         birds_dodged_text = medium_font.render(f"Birds Dodged: {birds_dodged}", 1, (255, 255, 255))
         money_text = large_font.render(f"{data_shop['money']} : ", 1, (64, 255, 25))
-        window.fill((204, 102, 0))
-        window.blit(top_cactus, (640, cactusy - 2000))
-        window.blit(mid_cactus, (640, cactusy - 1000))
-        window.blit(bottom_cactus, (640, cactusy))
-        window.blit(bg, (0, bgy))
-        window.blit(score_text, (1100, 0))
-        window.blit(fireballs_dodged_text, (screen_width - fireballs_dodged_text.get_width() - 10, 200))
-        window.blit(birds_dodged_text, (screen_width - birds_dodged_text.get_width() - 10, 150))
-        window.blit(meters_text, (screen_width - meters_text.get_width() - 10, 100))
-        window.blit(high_score_text, (50, 0))
-        window.blit(total_fireballs_dodged_text, (0, 200))
-        window.blit(total_birds_dodged_text, (0, 150))
-        window.blit(highest_meter_text, (0, 100))
-        window.blit(money_text, ((screen_width - money_text.get_width() - 225), 600))
-        window.blit(player1.img, (player1.x, player1.y))
+        game_surface.fill((204, 102, 0))
+        game_surface.blit(top_cactus, (640, cactusy - 2000))
+        game_surface.blit(mid_cactus, (640, cactusy - 1000))
+        game_surface.blit(bottom_cactus, (640, cactusy))
+        game_surface.blit(bg, (0, bgy))
+        game_surface.blit(score_text, (1100, 0))
+        game_surface.blit(fireballs_dodged_text, (game_surface.get_width() - fireballs_dodged_text.get_width() - 10, 200))
+        game_surface.blit(birds_dodged_text, (game_surface.get_width() - birds_dodged_text.get_width() - 10, 150))
+        game_surface.blit(meters_text, (game_surface.get_width() - meters_text.get_width() - 10, 100))
+        game_surface.blit(high_score_text, (50, 0))
+        game_surface.blit(total_fireballs_dodged_text, (0, 200))
+        game_surface.blit(total_birds_dodged_text, (0, 150))
+        game_surface.blit(highest_meter_text, (0, 100))
+        game_surface.blit(money_text, ((game_surface.get_width() - money_text.get_width() - 225), 600))
+        game_surface.blit(player1.img, (player1.x, player1.y))
         if data_shop['cowboy_hat_equipped'] == True:
             if player1.x == 740:
                 Cowboy_Hat.x = 755
             elif player1.x == 590:
                 Cowboy_Hat.x = 585
-            window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
+            game_surface.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
         if data_shop['thinking_hat_equipped'] == True:
             if player1.x == 740:
                 Thinking_Hat.x = 755
             elif player1.x == 590:
                 Thinking_Hat.x = 585
-            window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
+            game_surface.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
         if data_shop['top_hat_equipped'] == True:
             if player1.x == 740:
                 Top_Hat.x = 755
             elif player1.x == 590:
                 Top_Hat.x = 585
-            window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
+            game_surface.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
         if data_shop['red_cap_equipped'] == True:
             if player1.x == 740:
                 Red_Cap.x = 750
             elif player1.x == 590:
                 Red_Cap.image = transform.flip(Red_Cap.image, 90, 0)
                 Red_Cap.x = 590
-            window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
+            game_surface.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
         if data_shop['party_hat_equipped'] == True:
             if player1.x == 740:
                 Party_Hat.x = 755
             elif player1.x == 590:
                 Party_Hat.x = 585
-            window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
+            game_surface.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
         if data_shop['witch_hat_equipped'] == True:
             if player1.x == 740:
                 Witch_Hat.x = 755
             elif player1.x == 590:
                 Witch_Hat.x = 585
-            window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
+            game_surface.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
         if data_shop['mexican_hat_equipped'] == True:
             if player1.x == 740:
                 Mexican_Hat.x = 755
             elif player1.x == 590:
                 Mexican_Hat.x = 585
-            window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
+            game_surface.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
         if data_shop['king_hat_equipped'] == True:
             if player1.x == 740:
                 King_Hat.x = 755
             elif player1.x == 590:
                 King_Hat.x = 585
-            window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
-        window.blit(bird1.image, (bird1.x, bird1.y))
-        window.blit(fireball1.image, (fireball1.x, fireball1.y))
-        window.blit(Money.image, (Money.x, Money.y))
-        display.update()
+            game_surface.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
+        game_surface.blit(bird1.image, (bird1.x, bird1.y))
+        game_surface.blit(fireball1.image, (fireball1.x, fireball1.y))
+        game_surface.blit(Money.image, (Money.x, Money.y))
+        render_to_screen()
 def main_normal():
-    global data_normal, data_options, data_shop, data_achievements
+    global data_normal, data_options, data_shop, data_achievements, window, is_fullscreen
     if data_options['play_music'] == True:
         maintheme.play(-1)
     fireballs_dodged = 0
@@ -2411,6 +2561,13 @@ def main_normal():
                 save_data()
                 run = False
                 quit()
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1: #right 
@@ -2540,7 +2697,7 @@ def main_normal():
                 flap2 = False
                 flap = True
         fireball1.y += 10
-        if fireball1.y >= screen_height:
+        if fireball1.y >= game_surface.get_height():
             fireball1.y = 0
             fireball1.x = choice([585, 760])
             data_normal['fireballs_dodged'] += 1
@@ -2548,13 +2705,13 @@ def main_normal():
                 dump(data_normal, save_data_normal)
             fireballs_dodged += 1
         bird1.x += 10
-        if bird1.x >= screen_width:
+        if bird1.x >= game_surface.get_width():
             bird1.x = -1000
             data_normal['birds_dodged'] += 1
             with open(join('data', 'save_data_normal.json'),'w') as save_data_normal:
                 dump(data_normal, save_data_normal)
             birds_dodged += 1
-        elif bird1.y >= screen_height:
+        elif bird1.y >= game_surface.get_height():
             bird1.x = -1000
             bird1.y = randint(300, 800)
             data_normal['birds_dodged'] += 1
@@ -2572,14 +2729,14 @@ def main_normal():
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
         elif fireball1.y >= 0 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
@@ -2589,23 +2746,23 @@ def main_normal():
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
         if bird_rect.colliderect(bird_rac_rect):
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
@@ -2641,79 +2798,79 @@ def main_normal():
         meters_text = medium_font.render(f"Meters Up: {meters_up}", 1, (255, 255, 255))
         birds_dodged_text = medium_font.render(f"Birds Dodged: {birds_dodged}", 1, (255, 255, 255))
         money_text = large_font.render(f"{data_shop['money']} : ", 1, (64, 255, 25))
-        window.fill((204, 102, 0))
-        window.blit(top_cactus, (640, cactusy - 5000))
-        window.blit(mid_cactus, (640, cactusy - 4000))
-        window.blit(mid_cactus, (640, cactusy - 3000))
-        window.blit(mid_cactus, (640, cactusy - 2000))
-        window.blit(mid_cactus, (640, cactusy - 1000))
-        window.blit(bottom_cactus, (640, cactusy))
-        window.blit(bg, (0, bgy))
-        window.blit(score_text, (1100, 0))
-        window.blit(fireballs_dodged_text, (screen_width - fireballs_dodged_text.get_width() - 10, 200))
-        window.blit(birds_dodged_text, (screen_width - birds_dodged_text.get_width() - 10, 150))
-        window.blit(meters_text, (screen_width - meters_text.get_width() - 10, 100))
-        window.blit(high_score_text, (50, 0))
-        window.blit(total_fireballs_dodged_text, (0, 200))
-        window.blit(total_birds_dodged_text, (0, 150))
-        window.blit(highest_meter_text, (0, 100))
-        window.blit(money_text, ((screen_width - money_text.get_width() - 225), 600))
-        window.blit(player1.img, (player1.x, player1.y))
+        game_surface.fill((204, 102, 0))
+        game_surface.blit(top_cactus, (640, cactusy - 5000))
+        game_surface.blit(mid_cactus, (640, cactusy - 4000))
+        game_surface.blit(mid_cactus, (640, cactusy - 3000))
+        game_surface.blit(mid_cactus, (640, cactusy - 2000))
+        game_surface.blit(mid_cactus, (640, cactusy - 1000))
+        game_surface.blit(bottom_cactus, (640, cactusy))
+        game_surface.blit(bg, (0, bgy))
+        game_surface.blit(score_text, (1100, 0))
+        game_surface.blit(fireballs_dodged_text, (game_surface.get_width() - fireballs_dodged_text.get_width() - 10, 200))
+        game_surface.blit(birds_dodged_text, (game_surface.get_width() - birds_dodged_text.get_width() - 10, 150))
+        game_surface.blit(meters_text, (game_surface.get_width() - meters_text.get_width() - 10, 100))
+        game_surface.blit(high_score_text, (50, 0))
+        game_surface.blit(total_fireballs_dodged_text, (0, 200))
+        game_surface.blit(total_birds_dodged_text, (0, 150))
+        game_surface.blit(highest_meter_text, (0, 100))
+        game_surface.blit(money_text, ((game_surface.get_width() - money_text.get_width() - 225), 600))
+        game_surface.blit(player1.img, (player1.x, player1.y))
         if data_shop['cowboy_hat_equipped'] == True:
             if player1.x == 740:
                 Cowboy_Hat.x = 755
             elif player1.x == 590:
                 Cowboy_Hat.x = 585
-            window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
+            game_surface.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
         if data_shop['thinking_hat_equipped'] == True:
             if player1.x == 740:
                 Thinking_Hat.x = 755
             elif player1.x == 590:
                 Thinking_Hat.x = 585
-            window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
+            game_surface.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
         if data_shop['top_hat_equipped'] == True:
             if player1.x == 740:
                 Top_Hat.x = 755
             elif player1.x == 590:
                 Top_Hat.x = 585
-            window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
+            game_surface.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
         if data_shop['red_cap_equipped'] == True:
             if player1.x == 740:
                 Red_Cap.x = 750
             elif player1.x == 590:
                 Red_Cap.image = transform.flip(Red_Cap.image, 90, 0)
                 Red_Cap.x = 590
-            window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
+            game_surface.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
         if data_shop['party_hat_equipped'] == True:
             if player1.x == 740:
                 Party_Hat.x = 755
             elif player1.x == 590:
                 Party_Hat.x = 585
-            window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
+            game_surface.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
         if data_shop['witch_hat_equipped'] == True:
             if player1.x == 740:
                 Witch_Hat.x = 755
             elif player1.x == 590:
                 Witch_Hat.x = 585
-            window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
+            game_surface.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
         if data_shop['mexican_hat_equipped'] == True:
             if player1.x == 740:
                 Mexican_Hat.x = 755
             elif player1.x == 590:
                 Mexican_Hat.x = 585
-            window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
+            game_surface.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
         if data_shop['king_hat_equipped'] == True:
             if player1.x == 740:
                 King_Hat.x = 755
             elif player1.x == 590:
                 King_Hat.x = 585
-            window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
-        window.blit(bird1.image, (bird1.x, bird1.y))
-        window.blit(fireball1.image, (fireball1.x, fireball1.y))
-        window.blit(Money.image, (Money.x, Money.y))
-        display.update()
+            game_surface.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
+        game_surface.blit(bird1.image, (bird1.x, bird1.y))
+        game_surface.blit(fireball1.image, (fireball1.x, fireball1.y))
+        game_surface.blit(Money.image, (Money.x, Money.y))
+        render_to_screen()
 def main_hard():
-    global data_hard, data_options, data_shop, data_achievements
+    global data_hard, data_options, data_shop, data_achievements, window, is_fullscreen
     if data_options['play_music'] == True:
         maintheme.play(-1)
     fireballs_dodged = 0
@@ -2737,6 +2894,13 @@ def main_hard():
                 save_data()
                 run = False
                 quit()
+            elif e.type == VIDEORESIZE:
+                handle_resize(e.w, e.h)
+            elif e.type == KEYDOWN:
+                if e.key == K_F11:
+                    toggle_fullscreen()
+                elif e.key == K_ESCAPE and is_fullscreen:
+                    toggle_fullscreen()
             elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1: #right 
@@ -2866,7 +3030,7 @@ def main_hard():
                 flap2 = False
                 flap = True
         fireball1.y += 25
-        if fireball1.y >= screen_height:
+        if fireball1.y >= game_surface.get_height():
             fireball1.y = 0
             fireball1.x = choice([585, 760])
             data_hard['fireballs_dodged'] += 1
@@ -2874,13 +3038,13 @@ def main_hard():
                 dump(data_hard, save_data_hard)
             fireballs_dodged += 1
         bird1.x += 25
-        if bird1.x >= screen_width:
+        if bird1.x >= game_surface.get_width():
             bird1.x = -100
             data_hard['birds_dodged'] += 1
             with open(join('data', 'save_data_hard.json'),'w') as save_data_hard:
                 dump(data_hard, save_data_hard)
             birds_dodged += 1
-        elif bird1.y >= screen_height:
+        elif bird1.y >= game_surface.get_height():
             bird1.x = -100
             bird1.y = randint(300, 800)
             data_hard['birds_dodged'] += 1
@@ -2898,14 +3062,14 @@ def main_hard():
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
+            display.flip()
         elif fireball1.y >= 20 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
@@ -2915,23 +3079,23 @@ def main_hard():
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
                     print("")
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
+            display.flip()
         if bird_rect.colliderect(bird_rac_rect):
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
-            window.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.update()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
+            game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
+            display.flip()
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
@@ -2969,81 +3133,81 @@ def main_hard():
         meters_text = medium_font.render(f"Meters Up: {meters_up}", 1, (255, 255, 255))
         birds_dodged_text = medium_font.render(f"Birds Dodged: {birds_dodged}", 1, (255, 255, 255))
         money_text = large_font.render(f"{data_shop['money']} : ", 1, (64, 255, 25))
-        window.fill((204, 102, 0))
-        window.blit(top_cactus, (640, cactusy - 10000))
-        window.blit(mid_cactus, (640, cactusy - 9000))
-        window.blit(mid_cactus, (640, cactusy - 8000))
-        window.blit(mid_cactus, (640, cactusy - 7000))
-        window.blit(mid_cactus, (640, cactusy - 6000))
-        window.blit(mid_cactus, (640, cactusy - 5000))
-        window.blit(mid_cactus, (640, cactusy - 4000))
-        window.blit(mid_cactus, (640, cactusy - 3000))
-        window.blit(mid_cactus, (640, cactusy - 2000))
-        window.blit(mid_cactus, (640, cactusy - 1000))
-        window.blit(bottom_cactus, (640, cactusy))
-        window.blit(bg, (0, bgy))
-        window.blit(score_text, (1100, 0))
-        window.blit(fireballs_dodged_text, (screen_width - fireballs_dodged_text.get_width() - 10, 200))
-        window.blit(birds_dodged_text, (screen_width - birds_dodged_text.get_width() - 10, 150))
-        window.blit(meters_text, (screen_width - meters_text.get_width() - 10, 100))
-        window.blit(high_score_text, (50, 0))
-        window.blit(total_fireballs_dodged_text, (0, 200))
-        window.blit(total_birds_dodged_text, (0, 150))
-        window.blit(highest_meter_text, (0, 100))
-        window.blit(money_text, ((screen_width - money_text.get_width() - 225), 600))
-        window.blit(player1.img, (player1.x, player1.y))
+        game_surface.fill((204, 102, 0))
+        game_surface.blit(top_cactus, (640, cactusy - 10000))
+        game_surface.blit(mid_cactus, (640, cactusy - 9000))
+        game_surface.blit(mid_cactus, (640, cactusy - 8000))
+        game_surface.blit(mid_cactus, (640, cactusy - 7000))
+        game_surface.blit(mid_cactus, (640, cactusy - 6000))
+        game_surface.blit(mid_cactus, (640, cactusy - 5000))
+        game_surface.blit(mid_cactus, (640, cactusy - 4000))
+        game_surface.blit(mid_cactus, (640, cactusy - 3000))
+        game_surface.blit(mid_cactus, (640, cactusy - 2000))
+        game_surface.blit(mid_cactus, (640, cactusy - 1000))
+        game_surface.blit(bottom_cactus, (640, cactusy))
+        game_surface.blit(bg, (0, bgy))
+        game_surface.blit(score_text, (1100, 0))
+        game_surface.blit(fireballs_dodged_text, (game_surface.get_width() - fireballs_dodged_text.get_width() - 10, 200))
+        game_surface.blit(birds_dodged_text, (game_surface.get_width() - birds_dodged_text.get_width() - 10, 150))
+        game_surface.blit(meters_text, (game_surface.get_width() - meters_text.get_width() - 10, 100))
+        game_surface.blit(high_score_text, (50, 0))
+        game_surface.blit(total_fireballs_dodged_text, (0, 200))
+        game_surface.blit(total_birds_dodged_text, (0, 150))
+        game_surface.blit(highest_meter_text, (0, 100))
+        game_surface.blit(money_text, ((game_surface.get_width() - money_text.get_width() - 225), 600))
+        game_surface.blit(player1.img, (player1.x, player1.y))
         if data_shop['cowboy_hat_equipped'] == True:
             if player1.x == 740:
                 Cowboy_Hat.x = 755
             elif player1.x == 590:
                 Cowboy_Hat.x = 585
-            window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
+            game_surface.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
         if data_shop['thinking_hat_equipped'] == True:
             if player1.x == 740:
                 Thinking_Hat.x = 755
             elif player1.x == 590:
                 Thinking_Hat.x = 585
-            window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
+            game_surface.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
         if data_shop['top_hat_equipped'] == True:
             if player1.x == 740:
                 Top_Hat.x = 755
             elif player1.x == 590:
                 Top_Hat.x = 585
-            window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
+            game_surface.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
         if data_shop['red_cap_equipped'] == True:
             if player1.x == 740:
                 Red_Cap.x = 750
             elif player1.x == 590:
                 Red_Cap.image = transform.flip(Red_Cap.image, 90, 0)
                 Red_Cap.x = 590
-            window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
+            game_surface.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
         if data_shop['party_hat_equipped'] == True:
             if player1.x == 740:
                 Party_Hat.x = 755
             elif player1.x == 590:
                 Party_Hat.x = 585
-            window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
+            game_surface.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
         if data_shop['witch_hat_equipped'] == True:
             if player1.x == 740:
                 Witch_Hat.x = 755
             elif player1.x == 590:
                 Witch_Hat.x = 585
-            window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
+            game_surface.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
         if data_shop['mexican_hat_equipped'] == True:
             if player1.x == 740:
                 Mexican_Hat.x = 755
             elif player1.x == 590:
                 Mexican_Hat.x = 585
-            window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
+            game_surface.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
         if data_shop['king_hat_equipped'] == True:
             if player1.x == 740:
                 King_Hat.x = 755
             elif player1.x == 590:
                 King_Hat.x = 585
-            window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
-        window.blit(bird1.image, (bird1.x, bird1.y))
-        window.blit(fireball1.image, (fireball1.x, fireball1.y))
-        window.blit(Money.image, (Money.x, Money.y))
-        display.update()
+            game_surface.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
+        game_surface.blit(bird1.image, (bird1.x, bird1.y))
+        game_surface.blit(fireball1.image, (fireball1.x, fireball1.y))
+        game_surface.blit(Money.image, (Money.x, Money.y))
+        render_to_screen()
 if __name__ == "__main__":
     start()
