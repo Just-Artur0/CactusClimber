@@ -78,6 +78,9 @@ maintheme = mixer.Sound(join('Music', 'maintheme.mp3'))
 dodgemusic = mixer.Sound(join('Music', 'dodge!.mp3'))
 firesound = mixer.Sound(join('Music', 'Sounds', 'fire.mp3'))
 birdsound = mixer.Sound(join('Music', 'Sounds', 'bird.mp3')) 
+buy_sound = mixer.Sound(join('Music', 'Sounds', 'buy.mp3'))
+equipped_sound = mixer.Sound(join('Music', 'Sounds', 'equipped.mp3'))
+denied_sound = mixer.Sound(join('Music', 'Sounds', 'denied.mp3'))
 bg = image.load(join('Images', 'bg.png')).convert_alpha()
 diff = 0
 show_textbox = False
@@ -202,7 +205,7 @@ def win():
                 save_data()
                 quit()
                 run = False
-            if e.type == JOYAXISMOTION:
+            elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == -1: #left
                     endvideo()
@@ -237,10 +240,10 @@ def credits():
                 save_data()
                 quit()
                 run = False
-            if e.type == JOYBUTTONDOWN:
+            elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                     start()
-            if e.type == MOUSEBUTTONDOWN:
+            elif e.type == MOUSEBUTTONDOWN:
                 mousex, mousey = mouse.get_pos()
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 if back_rect.collidepoint(mousex, mousey):
@@ -371,22 +374,22 @@ def shop():
     clockyy = time.Clock()
     while run:  
         clockyy.tick(60)
+        current_time = time.get_ticks()
         for e in event.get():
             if e.type == QUIT:
                 save_data()
                 quit()
                 run = False
-            current_time = time.get_ticks()
-            if e.type == JOYBUTTONDOWN:
+            elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                     start()
                 #press triangle to show select box
-                if joystick.Joystick(0).get_button(3):
+                elif joystick.Joystick(0).get_button(3):
                     show_select_box = True
-                if joystick.Joystick(0).get_button(0):
+                elif joystick.Joystick(0).get_button(0):
                     if Select_Box.x == Buy.x and Select_Box.y == Buy.y and data_shop['money'] >= 100 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 100
                         data_shop['show_cost'] = False
                         data_shop['cowboy_hat_unlocked'] = True
@@ -398,9 +401,9 @@ def shop():
                         Equip.x = 50
                         play_denied = False
                         last_move_time = current_time
-                    if Select_Box.x == Buy2.x and Select_Box.y == Buy2.y and data_shop['money'] >= 250 and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Buy2.x and Select_Box.y == Buy2.y and data_shop['money'] >= 250 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 250
                         data_shop['show_cost2'] = False
                         data_shop['thinking_hat_unlocked'] = True
@@ -412,9 +415,9 @@ def shop():
                         Equip2.x = 350
                         play_denied2 = False
                         last_move_time = current_time
-                    if Select_Box.x == Buy3.x and Select_Box.y == Buy3.y and data_shop['money'] >= 500 and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Buy3.x and Select_Box.y == Buy3.y and data_shop['money'] >= 500 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 500
                         data_shop['show_cost3'] = False
                         data_shop['top_hat_unlocked'] = True
@@ -426,9 +429,9 @@ def shop():
                         Equip3.x = 650
                         play_denied3 = False
                         last_move_time = current_time
-                    if Select_Box.x == Buy4.x and Select_Box.y == Buy4.y and data_shop['money'] >= 1000 and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Buy4.x and Select_Box.y == Buy4.y and data_shop['money'] >= 1000 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 1000
                         data_shop['show_cost4'] = False
                         data_shop['red_cap_unlocked'] = True
@@ -440,9 +443,9 @@ def shop():
                         Equip4.x = 950
                         play_denied4 = False
                         last_move_time = current_time                        
-                    if Select_Box.x == Buy5.x and Select_Box.y == Buy5.y and data_shop['money'] >= 100 and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Buy5.x and Select_Box.y == Buy5.y and data_shop['money'] >= 100 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 100
                         data_shop['show_cost5'] = False
                         data_shop['party_hat_unlocked'] = True
@@ -454,9 +457,9 @@ def shop():
                         Equip5.x = 50
                         play_denied5 = False
                         last_move_time = current_time
-                    if Select_Box.x == Buy6.x and Select_Box.y == Buy6.y and data_shop['money'] >= 500 and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Buy6.x and Select_Box.y == Buy6.y and data_shop['money'] >= 500 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 500
                         data_shop['show_cost7'] = False
                         data_shop['witch_hat_unlocked'] = True
@@ -468,9 +471,9 @@ def shop():
                         Equip6.x = 350
                         play_denied6 = False
                         last_move_time = current_time
-                    if Select_Box.x == Buy7.x and Select_Box.y == Buy7.y and data_shop['money'] >= 250 and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Buy7.x and Select_Box.y == Buy7.y and data_shop['money'] >= 250 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 250
                         data_shop['show_cost6'] = False
                         data_shop['mexican_hat_unlocked'] = True
@@ -482,9 +485,9 @@ def shop():
                         Equip7.x = 650
                         play_denied7 = False
                         last_move_time = current_time
-                    if Select_Box.x == Buy8.x and Select_Box.y == Buy8.y and data_shop['money'] >= 2000 and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Buy8.x and Select_Box.y == Buy8.y and data_shop['money'] >= 2000 and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                            buy_sound.play()
                         data_shop['money'] -= 2000
                         data_shop['show_cost8'] = False
                         data_shop['king_hat_unlocked'] = True
@@ -496,9 +499,9 @@ def shop():
                         Equip8.x = 950
                         play_denied8 = False
                         last_move_time = current_time
-                    if Select_Box.x == Equip.x and Select_Box.y == Equip.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip.x and Select_Box.y == Equip.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['cowboy_hat_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -507,9 +510,9 @@ def shop():
                         Unequip.image = transform.scale(unequip_image, (100, 50))
                         Unequip.x = 50
                         last_move_time = current_time
-                    if Select_Box.x == Equip2.x and Select_Box.y == Equip2.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip2.x and Select_Box.y == Equip2.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['thinking_hat_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -518,9 +521,9 @@ def shop():
                         Unequip2.image = transform.scale(unequip_image, (100, 50))
                         Unequip2.x = 350
                         last_move_time = current_time
-                    if Select_Box.x == Equip3.x and Select_Box.y == Equip3.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip3.x and Select_Box.y == Equip3.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['top_hat_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -529,9 +532,9 @@ def shop():
                         Unequip3.image = transform.scale(unequip_image, (100, 50))
                         Unequip3.x = 650
                         last_move_time = current_time
-                    if Select_Box.x == Equip4.x and Select_Box.y == Equip4.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip4.x and Select_Box.y == Equip4.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['red_cap_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -540,9 +543,9 @@ def shop():
                         Unequip4.image = transform.scale(unequip_image, (100, 50))
                         Unequip4.x = 950
                         last_move_time = current_time
-                    if Select_Box.x == Equip5.x and Select_Box.y == Equip5.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip5.x and Select_Box.y == Equip5.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['party_hat_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -551,9 +554,9 @@ def shop():
                         Unequip5.image = transform.scale(unequip_image, (100, 50))
                         Unequip5.x = 50 
                         last_move_time = current_time
-                    if Select_Box.x == Equip6.x and Select_Box.y == Equip6.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip6.x and Select_Box.y == Equip6.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['witch_hat_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -562,9 +565,9 @@ def shop():
                         Unequip6.image = transform.scale(unequip_image, (100, 50))
                         Unequip6.x = 350
                         last_move_time = current_time
-                    if Select_Box.x == Equip7.x and Select_Box.y == Equip7.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip7.x and Select_Box.y == Equip7.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['mexican_hat_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -573,9 +576,9 @@ def shop():
                         Unequip7.image = transform.scale(unequip_image, (100, 50))
                         Unequip7.x = 650
                         last_move_time = current_time
-                    if Select_Box.x == Equip8.x and Select_Box.y == Equip8.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Equip8.x and Select_Box.y == Equip8.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['king_hat_equipped'] = True
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -584,9 +587,9 @@ def shop():
                         Unequip8.image = transform.scale(unequip_image, (100, 50))
                         Unequip8.x = 950
                         last_move_time = current_time
-                    if Select_Box.x == Unequip.x and Select_Box.y == Unequip.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip.x and Select_Box.y == Unequip.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['cowboy_hat_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -595,9 +598,9 @@ def shop():
                         Unequip.image = transform.scale(unequip_image, (0, 0))
                         Unequip.x = 10000
                         last_move_time = current_time
-                    if Select_Box.x == Unequip2.x and Select_Box.y == Unequip2.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip2.x and Select_Box.y == Unequip2.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['thinking_hat_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -606,9 +609,9 @@ def shop():
                         Unequip2.image = transform.scale(unequip_image, (0, 0))
                         Unequip2.x = 10000
                         last_move_time = current_time
-                    if Select_Box.x == Unequip3.x and Select_Box.y == Unequip3.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip3.x and Select_Box.y == Unequip3.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['top_hat_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -617,9 +620,9 @@ def shop():
                         Unequip3.image = transform.scale(unequip_image, (0, 0))
                         Unequip3.x = 10000
                         last_move_time = current_time
-                    if Select_Box.x == Unequip4.x and Select_Box.y == Unequip4.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip4.x and Select_Box.y == Unequip4.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['red_cap_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -628,9 +631,9 @@ def shop():
                         Unequip4.image = transform.scale(unequip_image, (0, 0))
                         Unequip4.x = 10000
                         last_move_time = current_time
-                    if Select_Box.x == Unequip5.x and Select_Box.y == Unequip5.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip5.x and Select_Box.y == Unequip5.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['party_hat_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -639,9 +642,9 @@ def shop():
                         Unequip5.image = transform.scale(unequip_image, (0, 0))
                         Unequip5.x = 10000
                         last_move_time = current_time
-                    if Select_Box.x == Unequip6.x and Select_Box.y == Unequip6.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip6.x and Select_Box.y == Unequip6.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['witch_hat_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -650,9 +653,9 @@ def shop():
                         Unequip6.image = transform.scale(unequip_image, (0, 0))
                         Unequip6.x = 10000
                         last_move_time = current_time
-                    if Select_Box.x == Unequip7.x and Select_Box.y == Unequip7.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip7.x and Select_Box.y == Unequip7.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['mexican_hat_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -661,9 +664,9 @@ def shop():
                         Unequip7.image = transform.scale(unequip_image, (0, 0))
                         Unequip7.x = 10000
                         last_move_time = current_time
-                    if Select_Box.x == Unequip8.x and Select_Box.y == Unequip8.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.x == Unequip8.x and Select_Box.y == Unequip8.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_shop['king_hat_equipped'] = False
                         with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                             dump(data_shop, save_data_shop)
@@ -673,22 +676,22 @@ def shop():
                         Unequip8.x = 10000
                         last_move_time = current_time
             #moving the select box
-            if e.type == JOYAXISMOTION:
+            elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 io2 = round(joystick.Joystick(0).get_axis(1))
                 if io == 1 and Select_Box.x < 900 and current_time - last_move_time > move_delay: #right
                     Select_Box.x += 300
                     last_move_time = current_time
-                if io == -1 and Select_Box.x > 50 and current_time - last_move_time > move_delay: #left
+                elif io == -1 and Select_Box.x > 50 and current_time - last_move_time > move_delay: #left
                     Select_Box.x -= 300
                     last_move_time = current_time
-                if io2 == -1 and Select_Box.y >= 350 and current_time - last_move_time > move_delay: #up
+                elif io2 == -1 and Select_Box.y >= 350 and current_time - last_move_time > move_delay: #up
                     Select_Box.y -= 150
                     last_move_time = current_time
-                if io2 == 1 and Select_Box.y < 350 and current_time - last_move_time > move_delay: #down
+                elif io2 == 1 and Select_Box.y < 350 and current_time - last_move_time > move_delay: #down
                     Select_Box.y += 150
                     last_move_time = current_time
-            if e.type == MOUSEBUTTONDOWN:
+            elif e.type == MOUSEBUTTONDOWN:
                 mousex, mousey = mouse.get_pos()
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 equip_rect = Rect(Equip.x, Equip.y, Equip.width, Equip.height)
@@ -717,9 +720,9 @@ def shop():
                 buy8_rect = Rect(Buy8.x, Buy8.y, Buy8.width, Buy8.height)
                 if back_rect.collidepoint(mousex, mousey):
                     start()
-                if buy_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 100:
+                elif buy_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 100:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 100
                     data_shop['show_cost'] = False
                     data_shop['cowboy_hat_unlocked'] = True
@@ -730,12 +733,12 @@ def shop():
                     Equip.image = transform.scale(equip_image, (100, 50))
                     Equip.x = 50
                     play_denied = False
-                if buy_rect.collidepoint(mousex, mousey) and data_shop['money'] < 100 and play_denied == True:
+                elif buy_rect.collidepoint(mousex, mousey) and data_shop['money'] < 100 and play_denied == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if buy2_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 250:
+                        denied_sound.play()
+                elif buy2_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 250:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 250
                     data_shop['show_cost2'] = False
                     data_shop['thinking_hat_unlocked'] = True
@@ -746,12 +749,12 @@ def shop():
                     Equip2.image = transform.scale(equip_image, (100, 50))
                     Equip2.x = 350
                     play_denied2 = False
-                if buy2_rect.collidepoint(mousex, mousey) and data_shop['money'] < 250 and play_denied2 == True:
+                elif buy2_rect.collidepoint(mousex, mousey) and data_shop['money'] < 250 and play_denied2 == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if buy3_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 500:
+                        denied_sound.play()
+                elif buy3_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 500:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 500
                     data_shop['show_cost3'] = False
                     data_shop['top_hat_unlocked'] = True
@@ -762,12 +765,12 @@ def shop():
                     Equip3.image = transform.scale(equip_image, (100, 50))
                     Equip3.x = 650
                     play_denied3 = False
-                if buy3_rect.collidepoint(mousex, mousey) and data_shop['money'] < 500 and play_denied3 == True:
+                elif buy3_rect.collidepoint(mousex, mousey) and data_shop['money'] < 500 and play_denied3 == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if buy4_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 1000:
+                        denied_sound.play()
+                elif buy4_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 1000:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 1000
                     data_shop['show_cost4'] = False
                     data_shop['red_cap_unlocked'] = True
@@ -778,12 +781,12 @@ def shop():
                     Equip4.image = transform.scale(equip_image, (100, 50))
                     Equip4.x = 950
                     play_denied4 = False
-                if buy4_rect.collidepoint(mousex, mousey) and data_shop['money'] < 1000 and play_denied4 == True:
+                elif buy4_rect.collidepoint(mousex, mousey) and data_shop['money'] < 1000 and play_denied4 == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if equip_rect.collidepoint(mousex, mousey):
+                        denied_sound.play()
+                elif equip_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['cowboy_hat_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -791,9 +794,9 @@ def shop():
                     Equip.x = 10000
                     Unequip.image = transform.scale(unequip_image, (100, 50))
                     Unequip.x = 50 
-                if unequip_rect.collidepoint(mousex, mousey):
+                elif unequip_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['cowboy_hat_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -801,9 +804,9 @@ def shop():
                     Equip.x = 50
                     Unequip.image = transform.scale(unequip_image, (0, 0))
                     Unequip.x = 10000
-                if equip2_rect.collidepoint(mousex, mousey):
+                elif equip2_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['thinking_hat_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -811,9 +814,9 @@ def shop():
                     Equip2.x = 10000
                     Unequip2.image = transform.scale(unequip_image, (100, 50))
                     Unequip2.x = 350
-                if unequip2_rect.collidepoint(mousex, mousey):
+                elif unequip2_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['thinking_hat_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -821,9 +824,9 @@ def shop():
                     Equip2.x = 350
                     Unequip2.image = transform.scale(unequip_image, (0, 0))
                     Unequip2.x = 10000
-                if equip3_rect.collidepoint(mousex, mousey):
+                elif equip3_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['top_hat_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -831,9 +834,9 @@ def shop():
                     Equip3.x = 10000
                     Unequip3.image = transform.scale(unequip_image, (100, 50))
                     Unequip3.x = 650
-                if unequip3_rect.collidepoint(mousex, mousey):
+                elif unequip3_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['top_hat_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -841,9 +844,9 @@ def shop():
                     Equip3.x = 650
                     Unequip3.image = transform.scale(unequip_image, (0, 0))
                     Unequip3.x = 10000
-                if equip4_rect.collidepoint(mousex, mousey):
+                elif equip4_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['red_cap_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -851,9 +854,9 @@ def shop():
                     Equip4.x = 10000
                     Unequip4.image = transform.scale(unequip_image, (100, 50))
                     Unequip4.x = 950
-                if unequip4_rect.collidepoint(mousex, mousey):
+                elif unequip4_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['red_cap_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -861,9 +864,9 @@ def shop():
                     Equip4.x = 950
                     Unequip4.image = transform.scale(unequip_image, (0, 0))
                     Unequip4.x = 10000
-                if buy5_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 100:
+                elif buy5_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 100:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 100
                     data_shop['show_cost5'] = False
                     data_shop['party_hat_unlocked'] = True
@@ -874,12 +877,12 @@ def shop():
                     Equip5.image = transform.scale(equip_image, (100, 50))
                     Equip5.x = 50
                     play_denied5 = False
-                if buy5_rect.collidepoint(mousex, mousey) and data_shop['money'] < 100 and play_denied5 == True:
+                elif buy5_rect.collidepoint(mousex, mousey) and data_shop['money'] < 100 and play_denied5 == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if buy6_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 500:
+                        denied_sound.play()
+                elif buy6_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 500:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 500
                     data_shop['show_cost7'] = False
                     data_shop['witch_hat_unlocked'] = True
@@ -890,12 +893,12 @@ def shop():
                     Equip6.image = transform.scale(equip_image, (100, 50))
                     Equip6.x = 350
                     play_denied6 = False
-                if buy6_rect.collidepoint(mousex, mousey) and data_shop['money'] < 500 and play_denied6 == True:
+                elif buy6_rect.collidepoint(mousex, mousey) and data_shop['money'] < 500 and play_denied6 == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if buy7_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 250:
+                        denied_sound.play()
+                elif buy7_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 250:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 250
                     data_shop['show_cost6'] = False
                     data_shop['mexican_hat_unlocked'] = True
@@ -906,12 +909,12 @@ def shop():
                     Equip7.image = transform.scale(equip_image, (100, 50))
                     Equip7.x = 650
                     play_denied7 = False
-                if buy7_rect.collidepoint(mousex, mousey) and data_shop['money'] < 250 and play_denied7 == True:
+                elif buy7_rect.collidepoint(mousex, mousey) and data_shop['money'] < 250 and play_denied7 == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if buy8_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 2000:
+                        denied_sound.play()
+                elif buy8_rect.collidepoint(mousex, mousey) and data_shop['money'] >= 2000:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'buy.mp3')).play()
+                        buy_sound.play()
                     data_shop['money'] -= 2000
                     data_shop['show_cost8'] = False
                     data_shop['king_hat_unlocked'] = True
@@ -922,12 +925,12 @@ def shop():
                     Equip8.image = transform.scale(equip_image, (100, 50))
                     Equip8.x = 950
                     play_denied8 = False
-                if buy8_rect.collidepoint(mousex, mousey) and data_shop['money'] < 2000 and play_denied8 == True:
+                elif buy8_rect.collidepoint(mousex, mousey) and data_shop['money'] < 2000 and play_denied8 == True:
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
-                if equip5_rect.collidepoint(mousex, mousey):
+                        denied_sound.play()
+                elif equip5_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['party_hat_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -935,9 +938,9 @@ def shop():
                     Equip5.x = 10000
                     Unequip5.image = transform.scale(unequip_image, (100, 50))
                     Unequip5.x = 50 
-                if unequip5_rect.collidepoint(mousex, mousey):
+                elif unequip5_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['party_hat_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -945,9 +948,9 @@ def shop():
                     Equip5.x = 50
                     Unequip5.image = transform.scale(unequip_image, (0, 0))
                     Unequip5.x = 10000
-                if equip6_rect.collidepoint(mousex, mousey):
+                elif equip6_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['witch_hat_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -955,9 +958,9 @@ def shop():
                     Equip6.x = 10000
                     Unequip6.image = transform.scale(unequip_image, (100, 50))
                     Unequip6.x = 350
-                if unequip6_rect.collidepoint(mousex, mousey):
+                elif unequip6_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['witch_hat_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -965,9 +968,9 @@ def shop():
                     Equip6.x = 350
                     Unequip6.image = transform.scale(unequip_image, (0, 0))
                     Unequip6.x = 10000
-                if equip7_rect.collidepoint(mousex, mousey):
+                elif equip7_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['mexican_hat_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -975,9 +978,9 @@ def shop():
                     Equip7.x = 10000
                     Unequip7.image = transform.scale(unequip_image, (100, 50))
                     Unequip7.x = 650
-                if unequip7_rect.collidepoint(mousex, mousey):
+                elif unequip7_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['mexican_hat_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -985,9 +988,9 @@ def shop():
                     Equip7.x = 650
                     Unequip7.image = transform.scale(unequip_image, (0, 0))
                     Unequip7.x = 10000
-                if equip8_rect.collidepoint(mousex, mousey):
+                elif equip8_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_shop['king_hat_equipped'] = True
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -995,9 +998,9 @@ def shop():
                     Equip8.x = 10000
                     Unequip8.image = transform.scale(unequip_image, (100, 50))
                     Unequip8.x = 950
-                if unequip8_rect.collidepoint(mousex, mousey):
+                elif unequip8_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_shop['king_hat_equipped'] = False
                     with open(join('data', 'save_data_shop.json'),'w') as save_data_shop:
                         dump(data_shop, save_data_shop)
@@ -1091,7 +1094,7 @@ def options():
         Checked.x = 10000
         Checked_off.image = transform.scale(checked_off_image, (250, 100))
         Checked_off.x = 760
-    if data_options['play_music'] == True:
+    elif data_options['play_music'] == True:
         Checked.image = transform.scale(checked_image, (250, 100))
         Checked.x = 760
         Checked_off.image = transform.scale(checked_off_image, (0, 0))
@@ -1101,7 +1104,7 @@ def options():
         Checked2.x = 10000
         Checked_off2.image = transform.scale(checked_off_image, (250, 100))
         Checked_off2.x = 760
-    if data_options['play_sfx'] == True:
+    elif data_options['play_sfx'] == True:
         Checked2.image = transform.scale(checked_image, (250, 100))
         Checked2.x = 760
         Checked_off2.image = transform.scale(checked_off_image, (0, 0))
@@ -1111,7 +1114,7 @@ def options():
         Checked3.x = 10000
         Checked_off3.image = transform.scale(checked_off_image, (250, 100))
         Checked_off3.x = 760
-    if data_options['controller_vibration'] == True:
+    elif data_options['controller_vibration'] == True:
         Checked3.image = transform.scale(checked_image, (250, 100))
         Checked3.x = 760
         Checked_off3.image = transform.scale(checked_off_image, (0, 0))
@@ -1120,22 +1123,22 @@ def options():
     clockyy = time.Clock()
     while run:  
         clockyy.tick(60)
+        current_time = time.get_ticks()
+        current_time2 = time.get_ticks()
         for e in event.get():
             if e.type == QUIT:
                 save_data()
                 quit()
                 run = False
-            current_time = time.get_ticks()
-            current_time2 = time.get_ticks()
-            if e.type == JOYBUTTONDOWN:
+            elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                         start()
-                if joystick.Joystick(0).get_button(3):
+                elif joystick.Joystick(0).get_button(3):
                         show_select_box = True
-                if joystick.Joystick(0).get_button(0):
+                elif joystick.Joystick(0).get_button(0):
                     if Select_Box.y == Checked.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_options['play_music'] = False
                         with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
@@ -1144,9 +1147,9 @@ def options():
                         Checked_off.image = transform.scale(checked_off_image, (250, 100))
                         Checked_off.x = 760
                         last_move_time = current_time
-                    if Select_Box.y == Checked_off.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.y == Checked_off.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_options['play_music'] = True
                         with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
@@ -1155,9 +1158,9 @@ def options():
                         Checked_off.image = transform.scale(checked_off_image, (0, 0))
                         Checked_off.x = 10000
                         last_move_time = current_time
-                    if Select_Box.y == Checked2.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.y == Checked2.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_options['play_sfx'] = False
                         with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
@@ -1166,10 +1169,10 @@ def options():
                         Checked_off2.image = transform.scale(checked_off_image, (250, 100))
                         Checked_off2.x = 760
                         last_move_time = current_time
-                    if Select_Box.y == Checked_off2.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.y == Checked_off2.y and current_time - last_move_time > move_delay:
                         data_options['play_sfx'] = True
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
                         Checked2.image = transform.scale(checked_image, (250, 100))
@@ -1177,9 +1180,9 @@ def options():
                         Checked_off2.image = transform.scale(checked_off_image, (0, 0))
                         Checked_off2.x = 10000
                         last_move_time = current_time
-                    if Select_Box.y == Checked3.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.y == Checked3.y and current_time - last_move_time > move_delay:
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         data_options['controller_vibration'] = False
                         with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
@@ -1188,10 +1191,10 @@ def options():
                         Checked_off3.image = transform.scale(checked_off_image, (250, 100))
                         Checked_off3.x = 760
                         last_move_time = current_time
-                    if Select_Box.y == Checked_off3.y and current_time - last_move_time > move_delay:
+                    elif Select_Box.y == Checked_off3.y and current_time - last_move_time > move_delay:
                         data_options['controller_vibration'] = True
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                             dump(data_options, save_data_options)
                         Checked3.image = transform.scale(checked_image, (250, 100))
@@ -1199,15 +1202,15 @@ def options():
                         Checked_off3.image = transform.scale(checked_off_image, (0, 0))
                         Checked_off3.x = 10000
                         last_move_time = current_time
-            if e.type == JOYAXISMOTION:
+            elif e.type == JOYAXISMOTION:
                 io2 = round(joystick.Joystick(0).get_axis(1))
                 if io2 == -1 and Select_Box.y >= 300 and current_time2 - last_move_time2 > move_delay2: #up
                     Select_Box.y -= 100
                     last_move_time2 = current_time2
-                if io2 == 1 and Select_Box.y < 400 and current_time2 - last_move_time2 > move_delay2: #down
+                elif io2 == 1 and Select_Box.y < 400 and current_time2 - last_move_time2 > move_delay2: #down
                     Select_Box.y += 100
                     last_move_time2 = current_time2
-            if e.type == MOUSEBUTTONDOWN:
+            elif e.type == MOUSEBUTTONDOWN:
                 mousex, mousey = mouse.get_pos()
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 checked_off_rect = Rect(Checked_off.x, Checked_off.y, Checked_off.width, Checked_off.height)
@@ -1218,9 +1221,9 @@ def options():
                 checked3_rect = Rect(Checked3.x, Checked3.y, Checked3.width, Checked3.height)
                 if back_rect.collidepoint(mousex, mousey):
                     start()
-                if checked_rect.collidepoint(mousex, mousey):
+                elif checked_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_options['play_music'] = False
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1228,9 +1231,9 @@ def options():
                     Checked.x = 10000
                     Checked_off.image = transform.scale(checked_off_image, (250, 100))
                     Checked_off.x = 760
-                if checked_off_rect.collidepoint(mousex, mousey):
+                elif checked_off_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     data_options['play_music'] = True
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1238,9 +1241,9 @@ def options():
                     Checked.x = 760
                     Checked_off.image = transform.scale(checked_off_image, (0, 0))
                     Checked_off.x = 10000
-                if checked2_rect.collidepoint(mousex, mousey):
+                elif checked2_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_options['play_sfx'] = False
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1248,19 +1251,19 @@ def options():
                     Checked2.x = 10000
                     Checked_off2.image = transform.scale(checked_off_image, (250, 100))
                     Checked_off2.x = 760
-                if checked_off2_rect.collidepoint(mousex, mousey):
+                elif checked_off2_rect.collidepoint(mousex, mousey):
                     data_options['play_sfx'] = True
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
                     Checked2.image = transform.scale(checked_image, (250, 100))
                     Checked2.x = 760
                     Checked_off2.image = transform.scale(checked_off_image, (0, 0))
                     Checked_off2.x = 10000
-                if checked3_rect.collidepoint(mousex, mousey):
+                elif checked3_rect.collidepoint(mousex, mousey):
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                        denied_sound.play()
                     data_options['controller_vibration'] = False
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1268,10 +1271,10 @@ def options():
                     Checked3.x = 10000
                     Checked_off3.image = transform.scale(checked_off_image, (250, 100))
                     Checked_off3.x = 760
-                if checked_off3_rect.collidepoint(mousex, mousey):
+                elif checked_off3_rect.collidepoint(mousex, mousey):
                     data_options['controller_vibration'] = True
                     if data_options['play_sfx'] == True:
-                        mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                        equipped_sound.play()
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
                     Checked3.image = transform.scale(checked_image, (250, 100))
@@ -1314,17 +1317,17 @@ def start():
                 save_data()
                 quit()
                 run = False
-            if e.type == JOYBUTTONDOWN:
+            elif e.type == JOYBUTTONDOWN:
                 if show_textbox == True:
                     if joystick.Joystick(0).get_button(1):
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         show_textbox = False
                         show_start = True
                         start()
-                    if joystick.Joystick(0).get_button(0):
+                    elif joystick.Joystick(0).get_button(0):
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['money'] = 0
                         data_shop['red_cap_equipped'] = False
                         data_shop['thinking_hat_equipped'] = False
@@ -1394,21 +1397,21 @@ def start():
                 if show_start == True:
                     if joystick.Joystick(0).get_button(0):
                         mainmenu()
-                    if joystick.Joystick(0).get_button(6):
+                    elif joystick.Joystick(0).get_button(6):
                         achievements()
-                    if joystick.Joystick(0).get_button(2):
+                    elif joystick.Joystick(0).get_button(2):
                         shop()
-                    if joystick.Joystick(0).get_button(3):
+                    elif joystick.Joystick(0).get_button(3):
                         credits()
-                    if joystick.Joystick(0).get_button(4):
+                    elif joystick.Joystick(0).get_button(4):
                         run = False
                         quit()
-                    if joystick.Joystick(0).get_button(5):
+                    elif joystick.Joystick(0).get_button(5):
                         show_textbox = True
                         show_start = False
-                    if joystick.Joystick(0).get_button(7):
+                    elif joystick.Joystick(0).get_button(7):
                         options()
-            if e.type == MOUSEBUTTONDOWN:
+            elif e.type == MOUSEBUTTONDOWN:
                 mousex, mousey = mouse.get_pos()
                 play_rect = Rect(Play.x, Play.y, Play.width, Play.height)
                 options_rect = Rect(Options.x, Options.y, Options.width, Options.height)
@@ -1422,27 +1425,27 @@ def start():
                 if show_start == True:
                     if play_rect.collidepoint(mousex, mousey):
                         mainmenu()
-                    if quit_rect.collidepoint(mousex, mousey):
+                    elif quit_rect.collidepoint(mousex, mousey):
                         run = False
                         quit()
-                    if options_rect.collidepoint(mousex, mousey):
+                    elif options_rect.collidepoint(mousex, mousey):
                         options()
-                    if shop_rect.collidepoint(mousex, mousey):
+                    elif shop_rect.collidepoint(mousex, mousey):
                         shop()
-                    if achievements_rect.collidepoint(mousex, mousey):
+                    elif achievements_rect.collidepoint(mousex, mousey):
                         achievements()
-                    if credits_rect.collidepoint(mousex, mousey):
+                    elif credits_rect.collidepoint(mousex, mousey):
                         credits()
                 if show_textbox == True:
                     if no_rect.collidepoint(mousex, mousey):
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'denied.mp3')).play()
+                            denied_sound.play()
                         show_textbox = False
                         show_start = True
                         start()
-                    if yes_rect.collidepoint(mousex, mousey):
+                    elif yes_rect.collidepoint(mousex, mousey):
                         if data_options['play_sfx'] == True:
-                            mixer.Sound(join('Music', 'Sounds', 'equipped.mp3')).play()
+                            equipped_sound.play()
                         data_shop['money'] = 0
                         data_shop['red_cap_equipped'] = False
                         data_shop['thinking_hat_equipped'] = False
@@ -1512,7 +1515,6 @@ def start():
                 if reset_rect.collidepoint(mousex, mousey):
                     show_textbox = True
                     show_start = False
-        #text5
         title_text = large_font.render("Cactus Climber", 1, (64, 255, 25)) 
         version_text = medium_font.render("v1.3.1", 1, (64, 255, 25))
         window.fill((204, 102, 25))
@@ -1667,10 +1669,10 @@ def achievements():
                 save_data()
                 quit()
                 run = False
-            if e.type == JOYBUTTONDOWN:
+            elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(1):
                     start()
-            if e.type == MOUSEBUTTONDOWN:
+            elif e.type == MOUSEBUTTONDOWN:
                 mousex, mousey = mouse.get_pos()
                 back_rect = Rect(Back.x, Back.y, Back.width, Back.height)
                 if back_rect.collidepoint(mousex, mousey):
@@ -1754,19 +1756,19 @@ def mainmenu():
                 save_data()
                 quit()
                 run = False
-            if e.type == JOYBUTTONDOWN:
+            elif e.type == JOYBUTTONDOWN:
                 if joystick.Joystick(0).get_button(3):
                     diff = 1
                     mainspot()
-                if joystick.Joystick(0).get_button(2):
+                elif joystick.Joystick(0).get_button(2):
                     diff = 2
                     mainspot()
-                if joystick.Joystick(0).get_button(0):
+                elif joystick.Joystick(0).get_button(0):
                     diff = 3
                     mainspot()
-                if joystick.Joystick(0).get_button(1):
+                elif joystick.Joystick(0).get_button(1):
                     start()
-                if joystick.Joystick(0).get_button(4):
+                elif joystick.Joystick(0).get_button(4):
                     data_options['show_easy'] = True
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1774,7 +1776,7 @@ def mainmenu():
                     Easy_Stats.x = 10000
                     Easy_Hide_Stats.image = transform.scale(hide_stats_image, (250, 50))
                     Easy_Hide_Stats.x = 50
-                if joystick.Joystick(0).get_button(5):
+                elif joystick.Joystick(0).get_button(5):
                     data_options['show_normal'] = True
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1782,7 +1784,7 @@ def mainmenu():
                     Normal_Stats.x = 10000
                     Normal_Hide_Stats.image = transform.scale(hide_stats_image, (250, 50))
                     Normal_Hide_Stats.x = 450
-                if joystick.Joystick(0).get_button(7):
+                elif joystick.Joystick(0).get_button(7):
                     data_options['show_hard'] = True
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1790,7 +1792,7 @@ def mainmenu():
                     Hard_Stats.x = 10000
                     Hard_Hide_Stats.image = transform.scale(hide_stats_image, (250, 50))
                     Hard_Hide_Stats.x = 850
-            if e.type == MOUSEBUTTONDOWN:
+            elif e.type == MOUSEBUTTONDOWN:
                 mousex, mousey = mouse.get_pos()
                 easy_rect = Rect(Easy.x, Easy.y, Easy.width, Easy.height)
                 normal_rect = Rect(Normal.x, Normal.y, Normal.width, Normal.height)
@@ -1805,13 +1807,13 @@ def mainmenu():
                 if easy_rect.collidepoint(mousex, mousey):
                     diff = 1
                     mainspot()
-                if normal_rect.collidepoint(mousex, mousey):
+                elif normal_rect.collidepoint(mousex, mousey):
                     diff = 2
                     mainspot()
-                if hard_rect.collidepoint(mousex, mousey):
+                elif hard_rect.collidepoint(mousex, mousey):
                     diff = 3
                     mainspot()
-                if easy_stats_rect.collidepoint(mousex, mousey):   
+                elif easy_stats_rect.collidepoint(mousex, mousey):   
                     data_options['show_easy'] = True
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1819,7 +1821,7 @@ def mainmenu():
                     Easy_Stats.x = 10000
                     Easy_Hide_Stats.image = transform.scale(hide_stats_image, (250, 50))
                     Easy_Hide_Stats.x = 50
-                if easy_hide_stats_rect.collidepoint(mousex, mousey):
+                elif easy_hide_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_easy'] = False
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1827,7 +1829,7 @@ def mainmenu():
                     Easy_Stats.x = 50
                     Easy_Hide_Stats.image = transform.scale(hide_stats_image, (0, 0))
                     Easy_Hide_Stats.x = 10000
-                if normal_stats_rect.collidepoint(mousex, mousey):
+                elif normal_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_normal'] = True
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1835,7 +1837,7 @@ def mainmenu():
                     Normal_Stats.x = 10000
                     Normal_Hide_Stats.image = transform.scale(hide_stats_image, (250, 50))
                     Normal_Hide_Stats.x = 450
-                if normal_hide_stats_rect.collidepoint(mousex, mousey):
+                elif normal_hide_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_normal'] = False
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1843,7 +1845,7 @@ def mainmenu():
                     Normal_Stats.x = 450
                     Normal_Hide_Stats.image = transform.scale(hide_stats_image, (0, 0))
                     Normal_Hide_Stats.x = 10000
-                if hard_stats_rect.collidepoint(mousex, mousey):
+                elif hard_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_hard'] = True
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1851,7 +1853,7 @@ def mainmenu():
                     Hard_Stats.x = 10000
                     Hard_Hide_Stats.image = transform.scale(hide_stats_image, (250, 50))
                     Hard_Hide_Stats.x = 850
-                if hard_hide_stats_rect.collidepoint(mousex, mousey):
+                elif hard_hide_stats_rect.collidepoint(mousex, mousey):
                     data_options['show_hard'] = False
                     with open(join('data', 'save_data_options.json'),'w') as save_data_options:
                         dump(data_options, save_data_options)
@@ -1859,7 +1861,7 @@ def mainmenu():
                     Hard_Stats.x = 850
                     Hard_Hide_Stats.image = transform.scale(hide_stats_image, (0, 0))
                     Hard_Hide_Stats.x = 1850
-                if back_rect.collidepoint(mousex, mousey):
+                elif back_rect.collidepoint(mousex, mousey):
                     start()
         #text
         full_meter_normal_text = small_font.render("(cactus is 117m)", 1, (255, 255, 255))
@@ -1875,7 +1877,7 @@ def mainmenu():
         highest_meter_easy_text = small_font.render(f"Total Meters Climbed: {data_easy['meters_up']}", 1, (255, 255, 255))
         total_birds_dodged_easy_text = small_font.render(f"Total Birds Dodged: {data_easy['birds_dodged']}", 1, (255, 255, 255))
         title_text = font.SysFont('comicsans', 140).render("Cactus Climber", 1, (64, 255, 25)) 
-        version_text = medium_font.render("v1.3", 1, (64, 255, 25))
+        version_text = medium_font.render("v1.3.1", 1, (64, 255, 25))
         money_text = large_font.render(f"{data_shop['money']} : ", 1, (64, 255, 25))
         window.fill((204, 102, 25))
         if data_options['show_easy'] == True:
@@ -1929,21 +1931,21 @@ def mainspot():
                 save_data()
                 quit()
                 run = False
-            if e.type == JOYAXISMOTION:
+            elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1 and diff == 1: #right
                     firstvideo_easy()
-                if io == 1 and diff == 2: #right
+                elif io == 1 and diff == 2: #right
                     firstvideo_normal()
-                if io == 1 and diff == 3: #right
+                elif io == 1 and diff == 3: #right
                     firstvideo_hard()
         begin_text = medium_font.render("Press D or Right key to Climb", 1, (0, 0, 255))
         keys = key.get_pressed()
         if keys[K_d] and diff == 1 or keys[K_RIGHT] and diff == 1:
             firstvideo_easy()
-        if keys[K_d] and diff == 2 or keys[K_RIGHT] and diff == 2:
+        elif keys[K_d] and diff == 2 or keys[K_RIGHT] and diff == 2:
             firstvideo_normal()
-        if keys[K_d] and diff == 3 or keys[K_RIGHT] and diff == 3:
+        elif keys[K_d] and diff == 3 or keys[K_RIGHT] and diff == 3:
             firstvideo_hard()
         window.fill((204, 102, 0))
         window.blit(bottom_cactus, (640, -500))
@@ -2085,7 +2087,7 @@ def main_easy():
                 save_data()
                 run = False
                 quit()
-            if e.type == JOYAXISMOTION:
+            elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1: #right 
                     if flap2 == True:
@@ -2104,7 +2106,7 @@ def main_easy():
                         fireball1.y += 150
                         flap2 = False
                         flap = True
-                if io == -1: #left
+                elif io == -1: #left
                     if flap == True:
                         data_shop['money'] += 1
                         data_easy['meters_up'] += 1
@@ -2150,7 +2152,7 @@ def main_easy():
                 except:
                     print("")
             fireballdeathvid()
-        if player_rect.colliderect(bird_rect):
+        elif player_rect.colliderect(bird_rect):
             if data_achievements['get_hit'] == False:
                 data_achievements['get_hit'] = True
             with open(join('data', 'save_data_easy.json'),'w') as save_data_easy:
@@ -2172,13 +2174,13 @@ def main_easy():
         if keys[K_a] and keys[K_d]:
             maintheme.stop()
             mainmenu()
-        if keys[K_LEFT] and keys[K_RIGHT]:
+        elif keys[K_LEFT] and keys[K_RIGHT]:
             maintheme.stop()
             mainmenu()
-        if keys[K_a] and keys[K_RIGHT]:
+        elif keys[K_a] and keys[K_RIGHT]:
             maintheme.stop()
             mainmenu()
-        if keys[K_LEFT] and keys[K_d]:
+        elif keys[K_LEFT] and keys[K_d]:
             maintheme.stop()
             mainmenu()
         if keys[K_a] or keys[K_LEFT]:
@@ -2196,7 +2198,7 @@ def main_easy():
                 fireball1.y += 150
                 flap = False
                 flap2 = True
-        if keys[K_d] or keys[K_RIGHT]:
+        elif keys[K_d] or keys[K_RIGHT]:
             if flap2 == True:
                 data_shop['money'] += 1
                 data_easy['meters_up'] += 1
@@ -2228,7 +2230,7 @@ def main_easy():
             with open(join('data', 'save_data_easy.json'),'w') as save_data_easy:
                 dump(data_easy, save_data_easy)
             birds_dodged += 1
-        if bird1.y >= screen_height:
+        elif bird1.y >= screen_height:
             bird1.x = -1000
             bird1.y = randint(300, 800)
             data_easy['birds_dodged'] += 1
@@ -2255,7 +2257,7 @@ def main_easy():
             display.update()
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
             display.update()
-        if fireball1.y >= 0 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
+        elif fireball1.y >= 0 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
@@ -2334,50 +2336,50 @@ def main_easy():
         if data_shop['cowboy_hat_equipped'] == True:
             if player1.x == 740:
                 Cowboy_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Cowboy_Hat.x = 585
             window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
         if data_shop['thinking_hat_equipped'] == True:
             if player1.x == 740:
                 Thinking_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Thinking_Hat.x = 585
             window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
         if data_shop['top_hat_equipped'] == True:
             if player1.x == 740:
                 Top_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Top_Hat.x = 585
             window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
         if data_shop['red_cap_equipped'] == True:
             if player1.x == 740:
                 Red_Cap.x = 750
-            if player1.x == 590:
+            elif player1.x == 590:
                 Red_Cap.image = transform.flip(Red_Cap.image, 90, 0)
                 Red_Cap.x = 590
             window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
         if data_shop['party_hat_equipped'] == True:
             if player1.x == 740:
                 Party_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Party_Hat.x = 585
             window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
         if data_shop['witch_hat_equipped'] == True:
             if player1.x == 740:
                 Witch_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Witch_Hat.x = 585
             window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
         if data_shop['mexican_hat_equipped'] == True:
             if player1.x == 740:
                 Mexican_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Mexican_Hat.x = 585
             window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
         if data_shop['king_hat_equipped'] == True:
             if player1.x == 740:
                 King_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 King_Hat.x = 585
             window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
         window.blit(bird1.image, (bird1.x, bird1.y))
@@ -2409,7 +2411,7 @@ def main_normal():
                 save_data()
                 run = False
                 quit()
-            if e.type == JOYAXISMOTION:
+            elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1: #right 
                     if flap2 == True:
@@ -2428,7 +2430,7 @@ def main_normal():
                         fireball1.y += 150
                         flap2 = False
                         flap = True
-                if io == -1: #left
+                elif io == -1: #left
                     if flap == True:
                         data_shop['money'] += 1
                         data_normal['meters_up'] += 1
@@ -2474,7 +2476,7 @@ def main_normal():
                 except:
                     pass
             fireballdeathvid()
-        if player_rect.colliderect(bird_rect):
+        elif player_rect.colliderect(bird_rect):
             if data_achievements['get_hit'] == False:
                 data_achievements['get_hit'] = True
             with open(join('data', 'save_data_normal.json'),'w') as save_data_normal:
@@ -2496,13 +2498,13 @@ def main_normal():
         if keys[K_a] and keys[K_d]:
             maintheme.stop()
             mainmenu()
-        if keys[K_LEFT] and keys[K_RIGHT]:
+        elif keys[K_LEFT] and keys[K_RIGHT]:
             maintheme.stop()
             mainmenu()
-        if keys[K_a] and keys[K_RIGHT]:
+        elif keys[K_a] and keys[K_RIGHT]:
             maintheme.stop()
             mainmenu()
-        if keys[K_LEFT] and keys[K_d]:
+        elif keys[K_LEFT] and keys[K_d]:
             maintheme.stop()
             mainmenu()
         if keys[K_a] or keys[K_LEFT]:
@@ -2520,7 +2522,7 @@ def main_normal():
                 fireball1.y += 150
                 flap = False
                 flap2 = True
-        if keys[K_d] or keys[K_RIGHT]:
+        elif keys[K_d] or keys[K_RIGHT]:
             if flap2 == True:
                 data_shop['money'] += 1
                 data_normal['meters_up'] += 1
@@ -2552,7 +2554,7 @@ def main_normal():
             with open(join('data', 'save_data_normal.json'),'w') as save_data_normal:
                 dump(data_normal, save_data_normal)
             birds_dodged += 1
-        if bird1.y >= screen_height:
+        elif bird1.y >= screen_height:
             bird1.x = -1000
             bird1.y = randint(300, 800)
             data_normal['birds_dodged'] += 1
@@ -2578,7 +2580,7 @@ def main_normal():
             display.update()
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
             display.update()
-        if fireball1.y >= 0 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
+        elif fireball1.y >= 0 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
@@ -2660,50 +2662,50 @@ def main_normal():
         if data_shop['cowboy_hat_equipped'] == True:
             if player1.x == 740:
                 Cowboy_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Cowboy_Hat.x = 585
             window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
         if data_shop['thinking_hat_equipped'] == True:
             if player1.x == 740:
                 Thinking_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Thinking_Hat.x = 585
             window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
         if data_shop['top_hat_equipped'] == True:
             if player1.x == 740:
                 Top_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Top_Hat.x = 585
             window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
         if data_shop['red_cap_equipped'] == True:
             if player1.x == 740:
                 Red_Cap.x = 750
-            if player1.x == 590:
+            elif player1.x == 590:
                 Red_Cap.image = transform.flip(Red_Cap.image, 90, 0)
                 Red_Cap.x = 590
             window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
         if data_shop['party_hat_equipped'] == True:
             if player1.x == 740:
                 Party_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Party_Hat.x = 585
             window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
         if data_shop['witch_hat_equipped'] == True:
             if player1.x == 740:
                 Witch_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Witch_Hat.x = 585
             window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
         if data_shop['mexican_hat_equipped'] == True:
             if player1.x == 740:
                 Mexican_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Mexican_Hat.x = 585
             window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
         if data_shop['king_hat_equipped'] == True:
             if player1.x == 740:
                 King_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 King_Hat.x = 585
             window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
         window.blit(bird1.image, (bird1.x, bird1.y))
@@ -2735,7 +2737,7 @@ def main_hard():
                 save_data()
                 run = False
                 quit()
-            if e.type == JOYAXISMOTION:
+            elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1: #right 
                     if flap2 == True:
@@ -2754,7 +2756,7 @@ def main_hard():
                         fireball1.y += 50
                         flap2 = False
                         flap = True
-                if io == -1: #left
+                elif io == -1: #left
                     if flap == True:
                         data_shop['money'] += 1
                         data_hard['meters_up'] += 1
@@ -2800,7 +2802,7 @@ def main_hard():
                 except:
                     print("")
             fireballdeathvid()
-        if player_rect.colliderect(bird_rect):
+        elif player_rect.colliderect(bird_rect):
             if data_achievements['get_hit'] == False:
                 data_achievements['get_hit'] = True
             with open(join('data', 'save_data_hard.json'),'w') as save_data_hard:
@@ -2822,13 +2824,13 @@ def main_hard():
         if keys[K_a] and keys[K_d]:
             maintheme.stop()
             mainmenu()
-        if keys[K_LEFT] and keys[K_RIGHT]:
+        elif keys[K_LEFT] and keys[K_RIGHT]:
             maintheme.stop()
             mainmenu()
-        if keys[K_a] and keys[K_RIGHT]:
+        elif keys[K_a] and keys[K_RIGHT]:
             maintheme.stop()
             mainmenu()
-        if keys[K_LEFT] and keys[K_d]:
+        elif keys[K_LEFT] and keys[K_d]:
             maintheme.stop()
             mainmenu()
         if keys[K_a] or keys[K_LEFT]:
@@ -2846,7 +2848,7 @@ def main_hard():
                 fireball1.y += 50
                 flap = False
                 flap2 = True
-        if keys[K_d] or keys[K_RIGHT]:
+        elif keys[K_d] or keys[K_RIGHT]:
             if flap2 == True:
                 data_shop['money'] += 1
                 data_hard['meters_up'] += 1
@@ -2878,7 +2880,7 @@ def main_hard():
             with open(join('data', 'save_data_hard.json'),'w') as save_data_hard:
                 dump(data_hard, save_data_hard)
             birds_dodged += 1
-        if bird1.y >= screen_height:
+        elif bird1.y >= screen_height:
             bird1.x = -100
             bird1.y = randint(300, 800)
             data_hard['birds_dodged'] += 1
@@ -2904,7 +2906,7 @@ def main_hard():
             display.update()
             window.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
             display.update()
-        if fireball1.y >= 20 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
+        elif fireball1.y >= 20 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
@@ -2993,50 +2995,50 @@ def main_hard():
         if data_shop['cowboy_hat_equipped'] == True:
             if player1.x == 740:
                 Cowboy_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Cowboy_Hat.x = 585
             window.blit(Cowboy_Hat.image, (Cowboy_Hat.x, Cowboy_Hat.y))
         if data_shop['thinking_hat_equipped'] == True:
             if player1.x == 740:
                 Thinking_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Thinking_Hat.x = 585
             window.blit(Thinking_Hat.image, (Thinking_Hat.x, Thinking_Hat.y))
         if data_shop['top_hat_equipped'] == True:
             if player1.x == 740:
                 Top_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Top_Hat.x = 585
             window.blit(Top_Hat.image, (Top_Hat.x, Top_Hat.y))
         if data_shop['red_cap_equipped'] == True:
             if player1.x == 740:
                 Red_Cap.x = 750
-            if player1.x == 590:
+            elif player1.x == 590:
                 Red_Cap.image = transform.flip(Red_Cap.image, 90, 0)
                 Red_Cap.x = 590
             window.blit(Red_Cap.image, (Red_Cap.x, Red_Cap.y))
         if data_shop['party_hat_equipped'] == True:
             if player1.x == 740:
                 Party_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Party_Hat.x = 585
             window.blit(Party_Hat.image, (Party_Hat.x, Party_Hat.y))
         if data_shop['witch_hat_equipped'] == True:
             if player1.x == 740:
                 Witch_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Witch_Hat.x = 585
             window.blit(Witch_Hat.image, (Witch_Hat.x, Witch_Hat.y))
         if data_shop['mexican_hat_equipped'] == True:
             if player1.x == 740:
                 Mexican_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 Mexican_Hat.x = 585
             window.blit(Mexican_Hat.image, (Mexican_Hat.x, Mexican_Hat.y))
         if data_shop['king_hat_equipped'] == True:
             if player1.x == 740:
                 King_Hat.x = 755
-            if player1.x == 590:
+            elif player1.x == 590:
                 King_Hat.x = 585
             window.blit(King_Hat.image, (King_Hat.x, King_Hat.y))
         window.blit(bird1.image, (bird1.x, bird1.y))
