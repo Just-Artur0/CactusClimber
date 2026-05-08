@@ -15,9 +15,7 @@ def win():
         for e in event.get():
             if e.type == QUIT:
                 save_data()
-                quit()
                 exit()
-                run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
             elif e.type == KEYDOWN:
@@ -28,7 +26,9 @@ def win():
             elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == -1: #left
-                    return vid_preview(1)
+                    vid_preview(1)
+                    from menus import mainmenu
+                    return mainmenu()
         #text
         money_text = large_font.render(f"{data_shop['money']} : ", 1, (64, 255, 25))
         main_text = medium_font.render("Press A or Left key to Go Back Down", 1, (0, 0, 255))
@@ -40,7 +40,9 @@ def win():
         #keyboard input
         keys = key.get_pressed()
         if keys[K_a] or keys[K_LEFT]:
-            return vid_preview(1)
+            vid_preview(1)
+            from menus import mainmenu
+            return mainmenu()
         #displaying on screen
         game_surface.blit(money_text, ((game_surface.get_width() - money_text.get_width() - 225), 600))
         game_surface.blit(Money.image, (Money.x, Money.y))

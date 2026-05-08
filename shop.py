@@ -143,9 +143,7 @@ def shop():
         for e in event.get():
             if e.type == QUIT:
                 save_data()
-                quit()
                 exit()
-                run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
             elif e.type == KEYDOWN:

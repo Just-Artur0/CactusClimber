@@ -32,8 +32,6 @@ def game(difficulty=0):
         for e in event.get():
             if e.type == QUIT:
                 save_data()
-                run = False
-                quit()
                 exit()
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
@@ -115,8 +113,10 @@ def game(difficulty=0):
                 try:
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
-                    print("")
-            return vid_preview(3)
+                    pass
+            vid_preview(3)
+            from menus import mainmenu
+            return mainmenu()
         elif player_rect.colliderect(bird_rect):
             if data_achievements['get_hit'] == False:
                 data_achievements['get_hit'] = True
@@ -128,8 +128,10 @@ def game(difficulty=0):
                 try:
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
-                    print("")
-            return vid_preview(2)
+                    pass
+            vid_preview(2)
+            from menus import mainmenu
+            return mainmenu()
         keys = key.get_pressed()
         if keys[K_a] and keys[K_d]:
             maintheme.stop()
@@ -196,7 +198,12 @@ def game(difficulty=0):
         if fireball1.y >= game_surface.get_height():
             fireball1.y = -1000
             fireball1.x = choice([585, 760])
-            data_easy['fireballs_dodged'] += 1
+            if difficulty == 1:
+                data_easy['fireballs_dodged'] += 1
+            elif difficulty == 2:
+                data_normal['fireballs_dodged'] += 1
+            elif difficulty == 3:
+                data_hard['fireballs_dodged'] += 1
             save_data()
             fireballs_dodged += 1
         if difficulty != 3:
@@ -205,13 +212,23 @@ def game(difficulty=0):
             bird1.x += 25
         if bird1.x >= game_surface.get_width():
             bird1.x = -1000
-            data_easy['birds_dodged'] += 1
+            if difficulty == 1:
+                data_easy['birds_dodged'] += 1
+            elif difficulty == 2:
+                data_normal['birds_dodged'] += 1
+            elif difficulty == 3:
+                data_hard['birds_dodged'] += 1
             save_data()
             birds_dodged += 1
         elif bird1.y >= game_surface.get_height():
             bird1.x = -1000
             bird1.y = randint(300, 800)
-            data_easy['birds_dodged'] += 1
+            if difficulty == 1:
+                data_easy['birds_dodged'] += 1
+            elif difficulty == 2:
+                data_normal['birds_dodged'] += 1
+            elif difficulty == 3:
+                data_hard['birds_dodged'] += 1
             save_data()
             birds_dodged += 1
         dodge_text_red = small_font.render("dodge!", 1, (255, 0, 0))
@@ -225,15 +242,15 @@ def game(difficulty=0):
                 try:
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
-                    print("")
+                    pass
             game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text_red, (player1.x - 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
         elif fireball1.y >= 0 and fireball1.x == 760 and player1.x == 740 and player1.y >= fireball1.y:
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
@@ -242,24 +259,24 @@ def game(difficulty=0):
                 try:
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
-                    print("")
+                    pass
             game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text_red, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
         if bird_rect.colliderect(bird_rac_rect):   
             game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             game_surface.blit(dodge_text, (player1.x + 10, player1.y - 30))
-            display.flip()
+            render_to_screen()
             if data_options['play_sfx'] == True:
                 dodgemusic.play()
                 dodgemusic.set_volume(0.1)
@@ -267,7 +284,7 @@ def game(difficulty=0):
                 try:
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
-                    print("")
+                    pass
         if bird_rac_rect.colliderect(top_cactus_rect):
             if data_achievements['climb_the_top'] == False:
                 data_achievements['climb_the_top'] = True
@@ -282,7 +299,7 @@ def game(difficulty=0):
                 try:
                     joystick.Joystick(0).rumble(5.0, 10.0, 30)
                 except:
-                    print("")
+                    pass
             from win import win
             return win()
         high_score_text = medium_font.render("High Scores", 1, (255, 255, 255))

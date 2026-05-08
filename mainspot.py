@@ -25,9 +25,7 @@ def mainspot(diff=0):
         for e in event.get():
             if e.type == QUIT:
                 save_data()
-                quit()
                 exit()
-                run = False
             elif e.type == VIDEORESIZE:
                 handle_resize(e.w, e.h)
             elif e.type == KEYDOWN:
@@ -38,19 +36,31 @@ def mainspot(diff=0):
             elif e.type == JOYAXISMOTION:
                 io = round(joystick.Joystick(0).get_axis(0))
                 if io == 1 and diff == 1: #right
-                    return vid_preview(4)
+                    vid_preview(4)
+                    from game import game
+                    game(1)
                 elif io == 1 and diff == 2: #right
-                    return vid_preview(5)
+                    vid_preview(5)
+                    from game import game
+                    game(2)
                 elif io == 1 and diff == 3: #right
-                    return vid_preview(6)
+                    vid_preview(6)
+                    from game import game
+                    game(3)
         begin_text = medium_font.render("Press D or Right key to Climb", 1, (0, 0, 255))
         keys = key.get_pressed()
         if keys[K_d] and diff == 1 or keys[K_RIGHT] and diff == 1:
-            return vid_preview(4)
+            vid_preview(4)
+            from game import game
+            game(1)
         elif keys[K_d] and diff == 2 or keys[K_RIGHT] and diff == 2:
-            return vid_preview(5)
+            vid_preview(5)
+            from game import game
+            game(2)
         elif keys[K_d] and diff == 3 or keys[K_RIGHT] and diff == 3:
-            return vid_preview(6)
+            vid_preview(6)
+            from game import game
+            game(3)
         game_surface.fill((204, 102, 0))
         game_surface.blit(bottom_cactus, (640, -500))
         game_surface.blit(bg, (0, 0))
